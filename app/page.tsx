@@ -12,6 +12,16 @@ export default function Home() {
           Hard hat area. Currently building...
         </p>
       </div>
+          <footer className="text-center py-8 text-gray-600 text-sm">
+            <p>&copy; {new Date().getFullYear()} Liam O'Brien. All rights reserved.</p>
+            <p className="mt-2">
+              Site code available on{' '}
+              <a href="https://github.com/darkhorse286/obrien-portfolio" className="text-blue-600 hover:underline">
+                GitHub
+              </a>
+            </p>
+          </footer>
     </main>
+
   );
 }
