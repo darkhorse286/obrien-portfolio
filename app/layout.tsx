@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "O'Brien and Son Portfolio",
+  title: "O'Brien &amp; Son",
   description: "Collection of projects by Liam O'Brien",
 };
 
