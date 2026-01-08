@@ -7,7 +7,7 @@ export default function Home() {
         <div className="text-center">
           <h1 className="text-6xl font-bold text-gray-900 mb-4">Liam O&apos;Brien</h1>
           <h2 className="text-3xl font-bold text-gray-600 mb-8">
-            Solutions Architect &amp; Security Leader
+            Software Architect &amp; Security Leader
           </h2>
           <p className="text-gray-500">
             Hard hat area. Currently building...
