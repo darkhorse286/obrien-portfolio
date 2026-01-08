@@ -6,9 +6,9 @@ export default function Navigation() {
             <div className="max-w-6xl mx-auto px-6 py-4">
                 <div className="flex items-center justify-between">
                     {/* Logo / Brand Name */}
-                    <link href="/" className="text-xl font-bold text-gray-900 hover:text-gray-600 transistion">
+                    <Link href="/" className="text-xl font-bold text-gray-900 hover:text-gray-600 transistion">
                         O'Brien & Son
-                    </link>
+                    </Link>
                     {/* Navigation Links */}
                     <div className="flex gap-8">
                         <Link href="/about" className="text-gray-600 hover:text-gray-900 transition">
