@@ -53,7 +53,7 @@ Whether it's a lacrosse management platform I built to help manage an 8U Girls l
 
 This site is not about showcasing what I've done professionally. It's about demonstrating how I think through problems, make architectural decisions, and build systems that can be maintained and extended over time.
 
----
+
 
 **Building things properly takes time. This is where I take that time.**
 
