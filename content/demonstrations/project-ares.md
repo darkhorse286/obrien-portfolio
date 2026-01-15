@@ -413,11 +413,17 @@ This project showcases:
 
 **Completed:** November 2025  
 **Technology:** .Net 10, Entity Framework Core, Azure SQL, Azure App Service  
-**Source:** [GitHub Repository]  
-**API Documentation:** [OpenAPI Specification]
+### Technical Artifacts:
+
+- **OpenAPI Specification:** Available upon request for serious hiring conversations
+- **Source Code:** Available for review in technical interviews or investor discussions
+- **Architecture Documentation:** Can be provided to demonstrate system design approach
+
+**Note:** Project ARES is being evaluated as a commercial product for youth sports 
+organizations. Full technical details are available for legitimate professional or 
+business inquiries.
 
 ---
 
 *The backend is complete. The frontend is inevitable.*
 
-**∎**
