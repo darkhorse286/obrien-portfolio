@@ -8,7 +8,7 @@ export default function Home() {
         <div className="max-w-5xl mx-auto px-6">
           <div className="mb-6">
             <span className="inline-block text-sm font-semibold text-amber-700 bg-amber-100 px-4 py-2 rounded-full mb-4">
-              EST. 1985 — 40 YEARS OF BUILDING THINGS PROPERLY
+              EST. 1986 — 40 YEARS OF BUILDING THINGS PROPERLY
             </span>
           </div>
 
@@ -24,9 +24,9 @@ export default function Home() {
 
           <div className="max-w-3xl mb-12">
             <p className="text-lg text-gray-600 leading-relaxed">
-              In 1985, my mother founded O'Brien & Son to build quality into every project. 
-              For four decades, that meant windows, siding, and lasting craftsmanship. Today, 
-              the name continues—but the materials have changed. <strong className="text-gray-900">This 
+              In 1986, my mother founded O'Brien & Son to build quality into every project. 
+              For four decades, that meant windows, siding, gutters, shutters, and lasting craftsmanship. Today, 
+              the name continues, but the materials have changed. <strong className="text-gray-900">This 
               workshop is where backend architecture, security patterns, and production systems are 
               designed, built, and refined.</strong>
             </p>

@@ -2,7 +2,7 @@
 title: "About"
 ---
 ## The O'Brien & Son Story
-My mother founded O'Brien & Son, Inc., an exterior remodeling company, at the birth of her first son. For nearly four decades, O'Brien & Son specialized in windows, siding, shutters, gutters, soffit, and fascia, building a reputation for quality craftmanship and attention to detail.
+My mother founded O'Brien & Son, Inc., an exterior remodeling company, at the birth of her first son. For nearly four decades, O'Brien & Son specialized in windows, siding, shutters, gutters, soffit, and fascia building a reputation for quality craftmanship and attention to detail.
 
 When she closed the business in 2025, I inherited more than just a domain name. I inherited a legacy of building things properly and excellent customer service. Rather than let obrienandson.com fade into internet history, I saw an opportunity to pivot from physical construction to digital transformations.
 
