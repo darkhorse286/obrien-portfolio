@@ -129,7 +129,7 @@ export default function Home() {
                   Project ARES: Backend-First Architecture
                 </h3>
                 <p className="text-gray-600">
-                  Multi-tenant athlete management platform · 100+ API endpoints · ASP.NET Core 8
+                  Multi-tenant athlete management platform · 100+ API endpoints · .NET 10
                 </p>
               </div>
             </div>

@@ -2,22 +2,22 @@
 title: "About"
 ---
 ## The O'Brien & Son Story
-My mother founded O'Brien & Son, Inc., an exterior remodeling company, at the birth of her first son. For nearly four decades, O'Brien & Son specialized in windows, siding, shutters, gutters, soffit, and fascia building a reputation for quality craftmanship and attention to detail.
+My mother founded O'Brien & Son, Inc., an exterior remodeling company, at the birth of her first son. For nearly four decades, O'Brien & Son specialized in windows, siding, shutters, gutters, soffit, and fascia, building a reputation for quality craftsmanship and attention to detail.
 
 When she closed the business in 2025, I inherited more than just a domain name. I inherited a legacy of building things properly and excellent customer service. Rather than let obrienandson.com fade into internet history, I saw an opportunity to pivot from physical construction to digital transformations.
 
-**The name remains. The commitment to quality craftmanship remains. The focus has simply shifted from exterior remodeling to software architecture.**
+**The name remains. The commitment to quality craftsmanship remains. The focus has simply shifted from exterior remodeling to software architecture.**
 
 This site is my workshop. A place where I can demonstrate systematic engineering, sound architectural principles, security-conscious designs, and experiments with new and emerging technologies. Like O'Brien & Son has done in the past, what I build here is meant to last, to be maintained, and to withstand scrutiny.
 
 ## My Background
-I'm a software architect and security leader with a track record of building production systems that handle complexity without collapsing under their own weight. My experience bridges the gap between software development and security engineering bringing the best practices into full-stack system design for the continuous delivery of value to my customers.
+I'm a software architect and security leader with a track record of building production systems that handle complexity without collapsing under their own weight. My experience bridges the gap between software development and security engineering, bringing the best practices into full-stack system design for the continuous delivery of value to my customers.
 
 Most recently, I serve as a Senior Solutions Architect for Security at a Fortune 500 Agriculture and Energy Cooperative. Part of my responsibilities are leading security architecture reviews, establishing secure development standards, working with and across engineering teams to build systems that balance security requirements, business capabilities, and development velocity. Prior to that, I held roles focused on web development, DevSecOps, and automation.
 
-**What drives my work:** I believe that security and quality are not features that you bolt on at the end. They are architectural decisions you make at the beginning. The best systems are designed with their constraints in mind, not retrofitted to accomodate, or bandage, them later.
+**What drives my work:** I believe that security and quality are not features that you bolt on at the end. They are architectural decisions you make at the beginning. The best systems are designed with their constraints in mind, not retrofitted to accommodate, or bandage, them later.
 
-I've spent my career in the messy intersection between "make it ship" and "make it secure," and I've learned that the right archictecture can enable both possibilities to co-exist. Backend-first development , clear API contracts, separation of concerns, and systematic thinking about authorization aren't just ideals; they're how you avoid architectural debt that cripples projects years down the line.
+I've spent my career in the messy intersection between "make it ship" and "make it secure," and I've learned that the right architecture can enable both possibilities to co-exist. Backend-first development, clear API contracts, separation of concerns, and systematic thinking about authorization aren't just ideals; they're how you avoid architectural debt that cripples projects years down the line.
 
 ## Technical Approach
 
