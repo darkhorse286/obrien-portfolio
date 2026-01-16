@@ -1,5 +1,16 @@
-import { getAllDemonstrations } from "@/lib/markdown";
-import Link from "next/link";
+import { getAllDemonstrations } from '@/lib/markdown';
+import Link from 'next/link';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: "Demonstrations",
+  description: "Production-quality engineering demonstrations written in QED format. Backend-first architecture, security patterns, and systematic problem-solving.",
+  openGraph: {
+    title: "Demonstrations | O'Brien & Son",
+    description: "Production-quality engineering demonstrations written in QED format.",
+    url: "https://www.obrienandson.com/demonstrations",
+  },
+};
 
 export default function Demonstrations(){
     const demonstrations = getAllDemonstrations();

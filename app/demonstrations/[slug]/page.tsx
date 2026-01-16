@@ -1,5 +1,25 @@
 import { getMarkdownContent, getAllDemonstrations } from '@/lib/markdown';
 import Link from 'next/link';
+import type { Metadata } from 'next';
+
+export async function generateMetadata({ 
+  params 
+}: { 
+  params: Promise<{ slug: string }> 
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const { metadata } = await getMarkdownContent(`demonstrations/${slug}.md`);
+  
+  return {
+    title: metadata.title || 'Demonstration',
+    description: metadata.description || 'A demonstration of systematic engineering and architectural discipline.',
+    openGraph: {
+      title: `${metadata.title || 'Demonstration'} | O'Brien & Son`,
+      description: metadata.description || 'A demonstration of systematic engineering and architectural discipline.',
+      url: `https://www.obrienandson.com/demonstrations/${slug}`,
+    },
+  };
+}
 
 // Tell Next.js which pages to generate at build time
 export async function generateStaticParams() {
