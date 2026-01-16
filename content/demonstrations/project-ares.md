@@ -310,7 +310,7 @@ Skills proven = {
 
 **For Enterprises:**
 - Validates systematic problem-solving approach
-- Shows security-first thinking (authZ throughout)
+- Shows security-first thinking (AuthZ throughout)
 - Demonstrates ability to manage complexity
 
 **For Technical Teams:**
@@ -412,7 +412,7 @@ This project showcases:
 - **Professional Execution:** Complete backend before UI implementation
 
 **Completed:** November 2025  
-**Technology:** .Net 10, Entity Framework Core, Azure SQL, Azure App Service  
+**Technology:** .NET 10, Entity Framework Core, Azure SQL, Azure App Service  
 ### Technical Artifacts:
 
 - **OpenAPI Specification:** Available upon request for serious hiring conversations
