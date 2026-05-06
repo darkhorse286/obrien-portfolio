@@ -456,6 +456,8 @@ pybind11 is a C++ library for embedding a Python interpreter directly in a C++ p
 
 ### Quantum Circuit Diagram
 
-![QAMO quantum circuit submitted to ibm_fez](/demonstrations/quantum-finance-problem/circuit-d7lo7t2t99kc73d1l1u0.svg)
+<a href="/demonstrations/quantum-finance-problem/circuit-d7lo7t2t99kc73d1l1u0.svg" target="_blank"><img src="/demonstrations/quantum-finance-problem/circuit-preview.png" alt="QAMO quantum circuit submitted to ibm_fez" title="Click to see full Quantum Circuit"></a>
+
+
 
 *The QAMO circuit submitted to ibm_fez, April 23, 2026. Each horizontal line is a qubit. Each column of gate operations is one unit of depth. This circuit has a depth of 1,158. See Appendix A: Circuit Depth for context on why depth is the binding constraint on current NISQ hardware.*
