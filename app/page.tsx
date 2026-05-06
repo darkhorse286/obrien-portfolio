@@ -1,10 +1,20 @@
 import Link from 'next/link';
+import { getAllDemonstrations } from '@/lib/markdown';
 
-export default function Home() {
+export default async function Home() {
+  const allDemos = getAllDemonstrations();
+  const featuredDemos = allDemos
+    .sort((a, b) => {
+      const dateA = a.metadata.date ? new Date(a.metadata.date).getTime() : 0;
+      const dateB = b.metadata.date ? new Date(b.metadata.date).getTime() : 0;
+      return dateB - dateA;
+    })
+    .slice(0, 3);
+
   return (
     <main className="min-h-[85vh]">
       {/* Hero Section */}
-      <div className="bg-gradient-to-b from-amber-50 via-white to-gray-50 py-20">
+      <div className="bg-gradient-to-b from-green-50 via-white to-gray-50 py-20">
         <div className="max-w-5xl mx-auto px-6">
           <div className="mb-6">
             <span className="inline-block text-sm font-semibold text-amber-700 bg-amber-100 px-4 py-2 rounded-full mb-4">
@@ -105,7 +115,9 @@ export default function Home() {
       {/* Featured Work */}
       <div className="max-w-5xl mx-auto px-6 py-16">
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-3xl font-bold text-gray-900">Featured Work</h2>
+          <h2 className="text-3xl font-bold text-gray-900">
+            Featured Work
+          </h2>
           <Link 
             href="/demonstrations"
             className="text-gray-600 hover:text-gray-900 font-semibold inline-flex items-center gap-2"
@@ -117,58 +129,44 @@ export default function Home() {
           </Link>
         </div>
 
-        {/* Project ARES Showcase */}
-        <div className="border-2 border-gray-200 rounded-xl overflow-hidden hover:border-gray-400 transition">
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-8 border-b-2 border-gray-200">
-            <div className="flex items-start justify-between mb-4">
-              <div>
-                <span className="inline-block text-xs font-bold text-green-700 bg-green-100 px-3 py-1 rounded-full mb-3">
-                  PRODUCTION
-                </span>
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                  Project ARES: Backend-First Architecture
-                </h3>
-                <p className="text-gray-600">
-                  Multi-tenant athlete management platform · 100+ API endpoints · .NET 10
-                </p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="p-8 bg-white">
-            <div className="mb-6">
-              <p className="text-lg text-gray-700 mb-4">
-                <strong className="text-gray-900">The Challenge:</strong> Build a production-ready, 
-                multi-tenant platform where business logic is complete at the API layer, making frontend 
-                development a mechanical exercise rather than an architectural challenge.
-              </p>
-              <p className="text-gray-600">
-                Written as a mathematical proof demonstrating systematic problem decomposition, 
-                architectural discipline, and execution capability. Complete backend implementation 
-                with zero refactoring required during UI development.
-              </p>
-            </div>
+        <div className="space-y-6">
+          {featuredDemos.map((demo) => (
+            <article
+              key={demo.slug}
+              className="border border-gray-200 rounded-lg p-8 hover:border-gray-400 transition"
+            >
+              <h3 className="text-2xl font-bold mb-2">{demo.metadata.title}</h3>
 
-            <div className="flex gap-4">
-              <Link 
-                href="/demonstrations/project-ares"
-                className="bg-gray-900 text-white px-6 py-3 rounded-lg font-semibold hover:bg-gray-700 transition"
-              >
-                Read the Full Demonstration
-              </Link>
-              <a 
-                href="https://projectareslax-web-f6g3aqcsctfpgncw.centralus-01.azurewebsites.net/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="border-2 border-gray-300 text-gray-700 px-6 py-3 rounded-lg font-semibold hover:border-gray-900 hover:text-gray-900 transition inline-flex items-center gap-2"
-              >
-                Live Demo
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                </svg>
-              </a>
-            </div>
-          </div>
+              {demo.metadata.description && (
+                <p className="text-gray-600 mb-4">{demo.metadata.description}</p>
+              )}
+
+              <div className="flex gap-4 text-sm text-gray-500 mb-6">
+                {demo.metadata.date && <span>📅 {demo.metadata.date}</span>}
+                {demo.metadata.tech && <span>⚙️ {demo.metadata.tech}</span>}
+              </div>
+
+              <div className="flex gap-4">
+                <Link
+                  href={`/demonstrations/${demo.slug}`}
+                  className="bg-gray-900 text-white px-6 py-2 rounded hover:bg-gray-700 transition"
+                >
+                  Read the Proof →
+                </Link>
+
+                {demo.metadata.demo && (
+                  <a
+                    href={demo.metadata.demo}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="border border-gray-900 text-gray-900 px-6 py-2 rounded hover:bg-gray-50 transition"
+                  >
+                    View Live Demo ↗
+                  </a>
+                )}
+              </div>
+            </article>
+          ))}
         </div>
 
         {/* In Progress Note */}

@@ -43,7 +43,7 @@ export default async function DemonstrationPage({
   );
   
   return (
-    <main className="max-w-4xl mx-auto px-6 py-12">
+    <main className="max-w-6xl mx-auto px-6 py-12">
       {/* Back button */}
       <Link 
         href="/demonstrations"
