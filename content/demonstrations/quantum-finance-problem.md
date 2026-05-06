@@ -196,13 +196,13 @@ All solvers below ran through the full backtest engine with constraint projectio
 
 Net return multiples are computed on a $1M initial portfolio. Transaction costs use the configured model: 0.1% commission, 5bps slippage, 0.2% linear market impact coefficient. These figures do not account for market impact scaling at larger AUM — at $100M, the 0.2% market impact coefficient would generate costs that likely compress or eliminate the alpha for high-turnover quantum solvers. A second limitation: the linear market impact model materially underestimates execution cost at the turnover levels observed for QAMO and QAMOO (755–815% annually). At 68% monthly turnover concentrated into 2–3 assets, real-world market impact is nonlinear and the net return figures for those solvers are optimistic. This model is appropriate for Markowitz at 282% annual turnover; it is not appropriate for QAMO at 815%.
 
-**IBM operational cost:** 28 hardware submissions consumed 1 minute 17 seconds of actual Qiskit Runtime on IBM's open instance (10 minutes free tier). Queue wait and provisioning overhead — not billed — totaled approximately 3–4 hours across all submissions. The marginal cost of the IBM hardware component of this experiment was effectively zero under the free tier.
+**IBM operational cost:** 28 hardware submissions consumed 1 minute 17 seconds of actual Qiskit Runtime on IBM's open instance (10 minutes free tier). Queue wait and provisioning overhead (not billed) totaled approximately 3–4 hours across all submissions. The marginal cost of the IBM hardware component of this experiment was effectively zero under the free tier.
 
 **Table 2 — Single-submission Aer (unconstrained, no transaction costs)**
 
 QAMOO produces a Pareto frontier rather than a single weight vector. It ran as a single submission, not walk-forward. Transaction costs are not deducted. Results are not directly comparable to Table 1.
 
-**Computation path note:** Table 2 metrics are sourced from `quantum_result_*.json` files via a separate injection path, not from the `BacktestResult::compute_analytics()` pipeline used for walk-forward solvers in Table 1. Annualization conventions and Sharpe calculation methodology may differ between the two paths — the Sharpe ratio in Table 2 may not be arithmetically consistent with the stated return and volatility figures if different annualization periods are applied. Treat Table 2 as indicative. Additionally, the QAMOO frontier in Exhibit H and the single-weight backtest result in Table 2 are different experiments — the frontier reflects a lambda sweep across risk parameters, the Table 2 backtest reflects the best-weight-vector applied statically over the full period.
+**Computation path note:** Table 2 metrics are sourced from `quantum_result_*.json` files via a separate injection path, not from the `BacktestResult::compute_analytics()` pipeline used for walk-forward solvers in Table 1. Annualization conventions and Sharpe calculation methodology may differ between the two paths. The Sharpe ratio in Table 2 may not be arithmetically consistent with the stated return and volatility figures if different annualization periods are applied. Treat Table 2 as indicative. Additionally, the QAMOO frontier in Exhibit H and the single-weight backtest result in Table 2 are different experiments. The frontier reflects a lambda sweep across risk parameters, the Table 2 backtest reflects the best-weight-vector applied statically over the full period.
 
 | Solver | Backend | Sharpe | Total Return | Volatility | Max Drawdown |
 |---|---|---|---|---|---|
@@ -214,7 +214,7 @@ The most defensible finding in this benchmark does not require IBM hardware, doe
 
 QUBO with simulated annealing is the worst walk-forward solver in the suite: mean Sharpe -0.316 across 4 runs (σ 0.014). Markowitz, running on the same data with a mean Sharpe of 0.099, looks mediocre. Against QUBO/SA, it looks strong.
 
-The reason is structural. Markowitz solves a continuous quadratic program over a convex polytope — the feasible solution space has flat faces, no holes, and admits an exact solution. QUBO in this benchmark uses 2-bit encoding per asset, representing each weight as one of four values: 0, 1/3, 2/3, or 1. With a 30% maximum weight constraint and constraint projection applied, the effective feasible weight per asset is further restricted. Simulated annealing then searches this already-degraded discrete landscape with a classical heuristic that makes no guarantees about solution quality. The discretization loss and the search heuristic compound. The result is mean return -7.3% across 4 runs.
+The reason is structural. Markowitz solves a continuous quadratic program over a convex polytope. The feasible solution space has flat faces, no holes, and admits an exact solution. QUBO in this benchmark uses 2-bit encoding per asset, representing each weight as one of four values: 0, 1/3, 2/3, or 1. With a 30% maximum weight constraint and constraint projection applied, the effective feasible weight per asset is further restricted. Simulated annealing then searches this already-degraded discrete landscape with a classical heuristic that makes no guarantees about solution quality. The discretization loss and the search heuristic compound. The result is mean return -7.3% across 4 runs.
 
 Now look at QAOA Uninformed, operating on the same QUBO matrix with the same constraint projection: mean Sharpe 0.436 across 4 runs (σ 0.681). Both solvers receive identical inputs. Both have constraints enforced identically at the backtest engine level. The quantum sampling procedure finds substantially better solutions in the same discrete landscape that classical annealing failed to navigate — on average, across every run.
 
@@ -226,7 +226,7 @@ One caveat not yet resolved: this analysis attributes all per-run Sharpe varianc
 
 ### Exhibit D: Constraint Projection Reveals Algorithm Sensitivity
 
-Adding constraint projection between the quantum solver output and portfolio execution changed the results materially — and differently for each algorithm. This is itself a finding.
+Adding constraint projection between the quantum solver output and portfolio execution changed the results materially and differently for each algorithm. This is itself a finding.
 
 | Solver | Pre-fix Mean Sharpe | Post-fix Mean Sharpe | Delta | Interpretation |
 |---|---|---|---|---|
@@ -237,23 +237,23 @@ Adding constraint projection between the quantum solver output and portfolio exe
 | QAMO Uninformed | 0.237 | 0.091 | -0.146 | Degraded, high variance |
 | QAMO Informed | 0.266 | 0.061 | -0.205 | Severely degraded, highest variance (σ 0.883) |
 
-QAMO's mean-field RX mixer produces weight distributions that are structurally incompatible with the constraint set. When projected onto the feasible region (clip to [5%, 30%], renormalize), QAMO's signal is destroyed. QAOA's output, by contrast, improves under projection — the constraint projection removes the extreme concentrated positions that were introducing portfolio instability, and what remains is a better-behaved allocation.
+QAMO's mean-field RX mixer produces weight distributions that are structurally incompatible with the constraint set. When projected onto the feasible region (clip to [5%, 30%], renormalize), QAMO's signal is destroyed. QAOA's output, by contrast, improves under projection. The constraint projection removes the extreme concentrated positions that were introducing portfolio instability, and what remains is a better-behaved allocation.
 
 This is not a bug. It is an algorithmic characteristic. QAMO optimizes in a way that depends on its specific discrete solutions surviving intact into execution. QAOA is more robust to post-processing. Whether this reflects a fundamental difference in how the two algorithms encode information in the bitstring distribution is an open research question. The empirical result is clear.
 
-The pre-fix production code gap — `optimize_quantum()` output flowing directly to `set_target_weights()` with no constraint validation — is now closed. The fix lives in `BacktestEngine::project_weights()`, applied universally to all quantum solver outputs before execution. A second production hardening fix was applied concurrently: `_augment_problem_data` in `qiskit_submit.py` previously wrote directly to the problem file, leaving a window for corruption if the process was interrupted or two benchmark sessions ran concurrently. It now uses a write-to-temp-then-rename pattern, which is atomic on POSIX systems.
+The pre-fix production code gap `optimize_quantum()` output flowing directly to `set_target_weights()` with no constraint validation is now closed. The fix lives in `BacktestEngine::project_weights()`, applied universally to all quantum solver outputs before execution. A second production hardening fix was applied concurrently: `_augment_problem_data` in `qiskit_submit.py` previously wrote directly to the problem file, leaving a window for corruption if the process was interrupted or two benchmark sessions ran concurrently. It now uses a write-to-temp-then-rename pattern, which is atomic on POSIX systems.
 
 ### Exhibit E: IBM Hardware — What We Ran, What We Found
 
 All three IBM backends (ibm_fez, ibm_kingston, ibm_marrakesh) were submitted with the same circuits, same problem files, and same shot count (1024). The quantum extension infrastructure worked end-to-end: the pybind11 worker spawned, circuits were transpiled, jobs were submitted and retrieved, weight vectors were returned and projected through the backtest engine.
 
-The optimization signal at current hardware coherence levels is a different matter. The null hypothesis for IBM hardware — that quantum circuits on real hardware can optimize a portfolio better than random sampling — is not refutable at these circuit depths. That is not a permanent conclusion. It is a current measurement.
+The optimization signal at current hardware coherence levels is a different matter. The null hypothesis for IBM hardware, namely that quantum circuits on real hardware can optimize a portfolio better than random sampling, is not refutable at these circuit depths. That is not a permanent conclusion. It is a current measurement.
 
 Across 28 unique IBM hardware submissions on ibm_fez and ibm_kingston, the top bitstring appeared in 1 or 2 out of 1024 shots in every single submission — the absolute minimum detectable signal with 1024 shots. This is statistically indistinguishable from random sampling. The circuits ran. The hardware responded. The decoherence at these circuit depths (757–1,267 gates) erased the optimization information before measurement.
 
 There is also a formulation incompatibility that would affect noise-free hardware equally. With 2-bit encoding, the minimum representable non-zero portfolio weight is 1/3 = 33.3%. The configured maximum weight constraint is 30%. These are irreconcilable without either more encoding bits (not locally simulable at n=10 assets with current hardware) or a higher constraint cap. Every IBM weight vector violates the maximum weight constraint by construction, regardless of hardware noise. The post-fix constraint projection normalizes these vectors before execution, but the underlying formulation mismatch remains.
 
-**What the IBM results represent:** the backtest performance attributed to IBM hardware reflects the performance of noise-derived, constraint-violating weight vectors — projected to feasibility — on real market data during a specific market regime. It is not a measurement of QAOA, QAMO, or QAMOO optimization quality on IBM hardware.
+**What the IBM results represent:** the backtest performance attributed to IBM hardware reflects the performance of noise-derived, constraint-violating weight vectors (projected to feasibility) on real market data during a specific market regime. It is not a measurement of QAOA, QAMO, or QAMOO optimization quality on IBM hardware.
 
 **Temporal mismatch note:** IBM jobs are submitted and collected asynchronously, with queue waits of minutes to hours. The problem file written at submission time uses the EWMA covariance from the lookback window at that moment. If market conditions shifted materially between submission and collection, the IBM result optimized a problem that was already stale when the weights arrived. Aer results use fresh covariance estimates at each rebalancing date. The two are not guaranteed to be solving the same problem instance at the time of comparison.
 
@@ -315,7 +315,7 @@ The aggregate table below represents results across 3 benchmark runs for walk-fo
 
 **IBM variance note:** IBM aggregate variance (Runs: 3–8) reflects variance across distinct hardware submissions on different calibration dates. All submissions produced minimum-detectable signal (1–2/1024 shots). The variance in IBM results measures the performance of randomly-derived weight vectors projected to feasibility, not optimization quality differences. IBM run counts in the aggregate are genuine distinct job submissions, not duplicates.
 
-**The cross-backend variance** tells the most direct story about NISQ hardware. QAOA mean Sharpe: ibm_fez 0.770, ibm_kingston 0.453, ibm_marrakesh 1.026 — a range of 0.573 across the same algorithm, same problem, different calibration state. Same circuit, three different machines, three meaningfully different results. Backend calibration state is an independent variable that no algorithmic improvement addresses on current hardware.
+**The cross-backend variance** tells the most direct story about NISQ hardware. QAOA mean Sharpe: ibm_fez 0.770, ibm_kingston 0.453, ibm_marrakesh 1.026. That is a spread of 0.573 across the same algorithm, the same problem, and different calibration states. Same circuit. Three different machines. Three meaningfully different results. Backend calibration state is an independent variable that no algorithmic improvement addresses on current hardware.
 
 **The Aer variance** tells a different story. QAOA Uninformed σ 0.729 reflects genuine shot noise propagating through COBYLA parameter estimation and binary weight reconstruction into the walk-forward portfolio. 1024 shots samples 0.1% of the 2²⁰ bitstring space. Each run's portfolio allocation is different because each run's dominant bitstring is different. This is fundamental undersampling, not hardware noise. Increasing shots would reduce this variance directly.
 
@@ -332,7 +332,7 @@ QAMOO's multi-objective lambda sweep produces a Pareto frontier directly compara
 
 The QAMOO frontier extends well above the classical frontier into high-return, high-volatility territory that is not achievable within the constraint set. This reflects the 2-bit encoding permitting unconstrained concentrations in the single-submission path. As hardware improves and higher bit depths become feasible (allowing 4% or 5% granularity rather than 33%), the QAMOO frontier should converge toward and eventually trace the classical efficient frontier more closely. This is the experiment to run next.
 
-One methodological note: the classical Markowitz frontier and the QAMOO frontier are not guaranteed to use identical covariance inputs. The classical frontier is computed at a specific point in the backtest. The QAMOO problem file is written at a separate point. If the EWMA covariance window differs between the two computations, the frontiers are not directly comparable. This does not affect the qualitative finding — the QAMOO frontier clearly extends beyond the classical feasible region — but it limits the precision of any quantitative comparison between specific frontier points.
+One methodological note: the classical Markowitz frontier and the QAMOO frontier are not guaranteed to use identical covariance inputs. The classical frontier is computed at a specific point in the backtest. The QAMOO problem file is written at a separate point. If the EWMA covariance window differs between the two computations, the frontiers are not directly comparable. This does not affect the qualitative finding. The QAMOO frontier clearly extends beyond the classical feasible region, but it limits the precision of any quantitative comparison between specific frontier points.
 
 ### Exhibit I: Scope
 
@@ -378,7 +378,7 @@ After establishing the baseline benchmark across 13 runs, a second configuration
 
 **Reading the improved results honestly.**
 
-Level 3 transpilation reduced IBM circuit depths from the baseline range of 757–1,267 to approximately 777–789 — a meaningful reduction. Dynamical decoupling was applied. Mthree readout correction was activated. Despite these improvements, IBM hardware results remain in the noise-dominated regime: signal quality low, mean Sharpe negative across 6 invocations. The depth reduction did not move the hardware into a signal-detectable range.
+Level 3 transpilation reduced IBM circuit depths from the baseline range of 757–1,267 gates to approximately 777–789. Dynamical decoupling was applied. Mthree readout correction was enabled. None of it moved the hardware out of the noise-dominated regime. Signal quality remained low. Mean Sharpe remained negative across 6 invocations. The circuits became shorter. The optimization signal did not become detectable.
 
 For Aer solvers, level 1 transpilation was retained to avoid disrupting the COBYLA parameter landscape. The marginal improvement in QAOA Uninformed mean Sharpe (+0.083) and the marginal degradation across QAMO variants confirm the primary conclusion: **the variance in Aer results is dominated by 1,024-shot undersampling of the 2²⁰ bitstring space, not by circuit structure or transpilation quality.** Changing the transpilation level while holding shots constant at 1,024 does not materially change the outcome distribution. More shots is the correct next lever.
 
@@ -388,25 +388,25 @@ The practical constraint is cost. QAMOO with error mitigation on IBM hardware ra
 
 ## QED
 
-The null hypothesis was that quantum solvers could not be integrated into a production C++ financial system without architectural overhaul. The system refutes it: six namespaces, 176 passing tests, IBM Quantum Cloud in production across three backends (ibm_fez, ibm_kingston, ibm_marrakesh), and a benchmark runner comparing sixteen solver configurations on identical problem instances — all behind a single abstract optimizer interface written in week one.
+The null hypothesis was that quantum solvers could not enter a production C++ financial system without architectural overhaul. The system refutes it: six namespaces, 176 passing tests, three IBM backends, sixteen solver configurations, and one optimizer interface that survived them all.
 
 The benchmark tells an honest story across four findings.
 
-**The QUBO gap is real across four runs.** QAOA Uninformed (mean Sharpe 0.436, σ 0.681) outperforms QUBO/SA (mean Sharpe -0.316, σ 0.014) on identical constrained inputs across four independent runs. Both formulations. Same constraint projection. Same backtest harness. The quantum sampler finds better solutions in the 2-bit discrete landscape than classical annealing does — on average, consistently. The per-run variance is high and must be disclosed, but the aggregate gap is real. This finding requires no caveats about hardware noise, market regime, or constraint enforcement.
+**The QUBO gap is real.** QAOA Uninformed (mean Sharpe 0.436, σ 0.681) outperformed QUBO/SA (mean Sharpe -0.316, σ 0.014) across four independent runs on identical constrained inputs. Same formulation. Same constraint projection. Same backtest harness. The quantum sampler navigated the 2-bit discrete landscape more effectively than classical annealing. The variance is high. The aggregate gap is still real. No caveats about hardware noise or constraint enforcement are required for this finding.  
 
-**Market data augmentation reverses the performance ranking.** QAOA Informed (mean Sharpe 0.712, σ 0.187) is the best-performing constrained walk-forward solver in the suite. It outperforms QAOA Uninformed on both mean return and stability. A single run suggested augmentation degrades performance. Four runs show the opposite. Single-run findings for stochastic quantum solvers are not findings.
+**Market data augmentation reversed the ranking.** QAOA Informed (mean Sharpe 0.712, σ 0.187) became the strongest constrained walk-forward solver in the suite. Higher return. Lower variance. A single run initially suggested augmentation degraded performance. Four runs showed the opposite. Stochastic solvers do not permit single-run conclusions.  
 
-**Constraint projection reveals algorithm sensitivity.** QAMO's mean-field output is structurally incompatible with the constraint set — post-projection performance collapses and variance spikes (σ 0.883). QAOA's output is robust to projection and improves under it. These are different algorithmic behaviors, not noise artifacts.
+**Constraint projection exposed algorithm sensitivity.** QAMO degraded sharply after projection; variance expanded to σ 0.883. QAOA improved under the same projection layer. Same constraints. Different behavior. The distinction is algorithmic, not statistical.  
 
-**IBM hardware produced no optimization signal at current coherence thresholds.** 28 submissions across three backends (ibm_fez, ibm_kingston, ibm_marrakesh). All at minimum detectable signal (1–2/1024 shots). The infrastructure worked end-to-end. The circuits ran. The hardware was not able to optimize at these circuit depths. That is the state of NISQ hardware in 2026 at depth 757–1,267.
+**IBM hardware produced no detectable optimization signal.** Twenty-eight submissions across ibm_fez, ibm_kingston, and ibm_marrakesh. Every run remained at minimum detectable signal: 1–2 dominant shots out of 1024. The infrastructure worked. The circuits executed. The optimization signal did not survive coherence loss at depths of 757–1,267 gates. That is the current state of NISQ hardware.  
 
-**Aer variance is undersampling, not algorithmic failure.** QAOA Uninformed σ 0.921 across 13 improved runs reflects 1,024 shots sampling 0.1% of the 2²⁰ bitstring space. Applying level 3 transpilation and dynamical decoupling did not materially reduce this variance — the standard deviation moved from 0.681 to 0.921. The distribution is shot-noise dominated. More shots is the correct next experiment.
+**Aer variance is dominated by undersampling.** QAOA Uninformed reached σ 0.921 across 13 improved runs while sampling 1,024 shots from a 2²⁰-state search space. Level 3 transpilation did not materially reduce the variance. Dynamical decoupling did not materially reduce the variance. The distribution remained shot-noise dominated. The next experiment is obvious: more shots.
 
-**Error mitigation at current hardware pricing is prohibitive for PoC scale.** Level 3 transpilation, dynamical decoupling, and mthree readout correction were applied across 18 IBM hardware submissions. Circuit depths reduced from the baseline range of 757–1,267 to approximately 777–789. Signal quality remained low. The IBM improved aggregate (QAOA mean -0.183, QAMO mean -0.356 across 6 invocations) shows no meaningful improvement over the baseline. At 4.5 minutes per round and $200 in credit value per `--ibm-benchmark` invocation, the cost of running error mitigation at scale is not justified by the current signal quality. This is an honest constraint worth stating.
+**Error mitigation remains economically irrational at PoC scale.** Level 3 transpilation reduced circuit depth from 757–1,267 gates to approximately 777–789. Dynamical decoupling ran. Mthree readout correction ran. Signal quality remained low. Mean Sharpe remained negative across the IBM improved aggregate. At 4.5 minutes per round and roughly $200 in runtime credit per --ibm-benchmark invocation, the mitigation cost exceeded the signal improvement. The circuits became shorter. The optimization signal did not become detectable.
 
-**Open questions for subsequent work:** increasing shot count from 1,024 to 4,096 or 16,384 to reduce undersampling variance — this is the highest-priority next experiment; scaling behavior at production universe sizes (n=50, 100); 4-bit encoding feasibility as a path toward honoring the 30% weight constraint without projection; IBM hardware revisit when top bitstring fraction exceeds 5% of shots; COBYLA warm-starting from the previous period's converged parameters; transaction cost and market impact scaling at production AUM levels; cross-regime validation in bull markets, liquidity crises, and sideways markets; hardware-in-the-loop testing strategy for the quantum code path — the 19 Python tests mock the Qiskit layer.
+**Open questions for subsequent work.** The remaining questions are now concrete engineering problems. Increase shot count to 4,096 or 16,384. Test scaling at production universe sizes (n=50, 100). Evaluate 4-bit encoding as a path toward constraint compliance without projection. Revisit IBM hardware once dominant bitstrings exceed 5% of shots consistently. Warm-start COBYLA from prior converged parameters. Measure transaction-cost scaling at production AUM. Validate across additional market regimes. Build hardware-in-the-loop testing for the quantum execution path instead of mocking Qiskit in the Python test suite.
 
-C++ is not the convenient path to quantum finance. It is the path that connects quantum computing to the systems where it would actually matter. The bridge exists. It compiles. It ran on ibm_fez, ibm_kingston, and ibm_marrakesh — and it told us exactly where the current limits are.
+C++ is not the convenient path to quantum finance. It is the path that connects quantum computing to the systems where it would actually matter.
 
 **∎**
 
@@ -421,69 +421,179 @@ C++ is not the convenient path to quantum finance. It is the path that connects 
 
 ## Appendix A: Terms
 
-The body of this post is written for practitioners. This appendix is for everyone else. No terms were softened above; they are explained here instead.
+The body of this post is written for practitioners. This appendix is for everyone else.
 
 ---
 
 ### Finance
 
-**Sharpe Ratio**
-A measure of return per unit of risk. Calculated as the portfolio's excess return above the risk-free rate, divided by its volatility. A Sharpe of 1.0 means you earned one dollar of return for every dollar of risk you accepted. A Sharpe of 0.099 (Markowitz in this benchmark) means the risk was barely compensated. A Sharpe of 0.712 (QAOA Informed, mean across four constrained walk-forward runs) means the portfolio earned well above what its volatility would suggest it deserved. The range matters: QAOA Uninformed produced Sharpe values from -0.061 to 1.053 across four identical runs — illustrating why mean and standard deviation are both necessary for stochastic solvers. Higher is better, and anything above 1.0 is generally considered good.
+## Finance
 
-**Max Drawdown**
-The largest peak-to-trough loss a portfolio experienced over the backtest period. Markowitz's -31.3% means that at some point during 2022–2023, the portfolio had lost nearly a third of its value from its most recent high. Drawdown matters separately from total return because it measures the worst moment a real investor would have had to sit through.
+### **Sharpe Ratio**
 
-**Walk-Forward Backtest**
-A simulation of how a strategy would have performed historically, with one critical constraint: at each rebalancing date, the optimizer only sees data that would have been available at that moment in real time. It cannot look ahead. This prevents the common failure mode of overfitting to historical patterns that would not have been knowable when the decisions needed to be made.
+A measure of return per unit of volatility. Formally:
 
-**Mean-Variance Optimization (Markowitz)**
-The classical framework for portfolio construction, introduced by Harry Markowitz in 1952. Given a set of assets with expected returns and a covariance matrix, it finds the portfolio weights that maximize expected return for a given level of risk. The math is well-understood, the solution is exact, and it has been the industry standard for 70 years. In this benchmark it is the baseline everything else is measured against.
+S = \frac{R_p - R_f}{\sigma_p}
 
-**Efficient Frontier**
-The set of portfolios that are Pareto-optimal under mean-variance optimization: for any given level of volatility, the efficient frontier contains the portfolio with the highest possible expected return. No portfolio above the frontier is achievable with the given assets under the given constraints. The frontier is the benchmark against which quantum Pareto frontiers are compared in Exhibit H.
+where (R_p) is portfolio return, (R_f) is the risk-free rate, and (\sigma_p) is portfolio volatility.
 
-**Covariance Matrix**
-A square matrix that captures how each asset in a portfolio moves relative to every other asset. If two assets tend to rise and fall together, their covariance is high and positive. If they tend to move in opposite directions, it is negative. The covariance matrix is the central input to mean-variance optimization. Estimating it accurately from historical data is one of the harder problems in quantitative finance, which is why this project implements three different estimation methods (sample covariance, EWMA, Ledoit-Wolf shrinkage). This benchmark uses EWMA with lambda 0.94.
+Higher is better.
 
-**Brinson-Fachler Attribution**
-A framework for decomposing portfolio performance relative to a benchmark into three components: allocation effect (did you overweight or underweight the right sectors?), selection effect (within each sector, did you pick better assets than the benchmark?), and interaction effect (the combined impact of both). In this project it runs automatically on every walk-forward backtest result. One methodological note: within-sector benchmark returns in this implementation are computed using equal-weighting across assets in each sector rather than cap-weighting. SPY is cap-weighted. This means the selection effect measures performance versus an equal-weight sector baseline, not versus the true SPY sector composition. The allocation effect remains valid. This is a known limitation of the current implementation. A second note: the attribution figures in this post are single-period decompositions computed over the full 16-month backtest window. Multi-period Carino logarithmic linking — which correctly handles compounding across periods — is implemented and available via `export_analytics_json()` but was not used for the headline figures. Single-period attribution over multiple periods introduces compounding distortions that grow with the number of periods.
+A Sharpe of 1.0 means the portfolio generated one unit of excess return for each unit of volatility accepted. A Sharpe near zero means the investor accepted substantial risk for little compensation. Negative Sharpe means the portfolio underperformed the risk-free alternative.
 
----
+The important detail for stochastic quantum solvers is variance across runs. QAOA Uninformed ranged from -0.061 to 1.053 across identical executions. A single Sharpe value is therefore not a finding. The distribution is the finding.
 
-### Quantum Computing
+### **Max Drawdown**
 
-**QUBO (Quadratic Unconstrained Binary Optimization)**
-A class of optimization problem where all variables are binary (0 or 1) and the objective is a quadratic function of those variables. It is the native language of quantum annealers and a natural target for gate-model quantum algorithms. To run portfolio optimization on quantum hardware, the continuous Markowitz problem is translated into QUBO form by representing portfolio weights as sums of binary fractions. This benchmark uses 2-bit encoding per asset, meaning each weight is a multiple of 1/3. This translation introduces approximation error — the central tension explored in Exhibit C.
+The largest peak-to-trough decline observed during the backtest period.
 
-**Convex Polytope**
-The geometric shape that defines the feasible solution space of the Markowitz optimization problem. "Convex" means there are no caves or holes — any straight line between two feasible points stays inside the feasible region. "Polytope" means the shape has flat faces. This matters because convex optimization problems have clean, efficient, exact solutions. QUBO discretization destroys convexity, which is why classical annealing struggles on QUBO formulations that quantum samplers handle better.
+If a portfolio rises from $1M to $1.4M and then falls to $900k before recovering, the drawdown is measured from the $1.4M peak, not from inception.
 
-**QAOA (Quantum Approximate Optimization Algorithm)**
-A gate-model quantum algorithm designed for combinatorial optimization problems. It alternates between two types of quantum operations: one that encodes the problem objective and one that mixes the quantum state. The depth of the circuit controls the trade-off between solution quality and hardware requirements. In this benchmark, QAOA runs at depth-1.
+Drawdown measures the worst point an investor would have experienced in real time. Total return does not capture this. Investors usually discover their actual risk tolerance during drawdowns, not during annualized return calculations.
 
-**QAMO (Quantum Alternating Mean-field Optimization)**
-A variational quantum algorithm that uses a mean-field approximation to reduce the complexity of the optimization landscape. Rather than treating all qubits as fully entangled, it models each qubit's behavior relative to the average behavior of its neighbors. In this benchmark, QAMO's weight distributions proved structurally incompatible with the 30% maximum weight constraint when projection was applied — see Exhibit D.
+### **Walk-Forward Backtest**
 
-**QAMOO (Quantum Alternating Multi-Objective Optimization)**
-An extension of QAMO that optimizes multiple objectives simultaneously by sweeping a parameter (lambda) that controls the trade-off between return and risk. Rather than finding a single optimal portfolio, it produces a set of portfolios spanning different points on the risk-return spectrum — a quantum Pareto frontier.
+A historical simulation where the optimizer only sees information available at that specific point in time.
 
-**NISQ (Noisy Intermediate-Scale Quantum)**
-The term for the current era of quantum computing hardware. "Intermediate-scale" means the machines have enough qubits to run interesting algorithms (tens to hundreds), but not enough for full fault-tolerant computation. "Noisy" means the physical qubits are error-prone: operations introduce small errors, and qubits lose their quantum state (decohere) over time. All IBM hardware results in this benchmark are NISQ-era results.
+No future data.
+No hindsight.
+No leakage.
 
-**Circuit Depth**
-The number of sequential quantum gate operations a circuit requires. Shallow circuits finish quickly and accumulate less noise. Deep circuits can express more complex computations but are more vulnerable to decoherence on current NISQ hardware. The IBM runs in this benchmark have circuit depths of 757–1,267, which is deep enough that noise dominates the output at current coherence thresholds.
+At each rebalance date, the optimizer receives a rolling historical window, produces weights, advances forward, and repeats. This prevents the common research failure mode where the strategy accidentally learns from the future while pretending not to.
 
-**Decoherence**
-The process by which a qubit loses its quantum state and becomes a classical bit. Quantum algorithms rely on qubits existing in superposition and becoming entangled with each other. Decoherence collapses superposition prematurely, caused by thermal noise, electromagnetic interference, and neighboring qubits. All current quantum hardware races against decoherence.
+### **Mean-Variance Optimization (Markowitz)**
 
-**Aer Simulator**
-IBM's open-source quantum circuit simulator. It executes quantum circuits on classical hardware, modeling the mathematical behavior of ideal qubits without physical noise. Because it removes hardware noise from the picture entirely, Aer results isolate algorithmic performance. The walk-forward Aer results in this benchmark represent the algorithm without hardware constraints.
+The classical portfolio optimization framework introduced by Harry Markowitz in 1952.
 
-**Bitstring**
-The output of a quantum measurement. When a quantum circuit finishes and the qubits are measured, each qubit collapses to 0 or 1. The full sequence of outcomes is a bitstring. In QUBO-based portfolio optimization, each bitstring represents a candidate portfolio allocation. Running the circuit many times produces a distribution of bitstrings; good solutions should appear more frequently due to quantum interference. "Top bitstring fraction" of 1–2/1024 means the most common solution appeared in fewer than 0.2% of measurements — statistically indistinguishable from random.
+The optimizer maximizes expected return for a given level of risk using expected returns and a covariance matrix:
 
-**pybind11 (and what we actually built)**
-pybind11 is a C++ library for embedding a Python interpreter directly in a C++ process with shared memory. What this project built is architecturally adjacent but distinct: a persistent Python worker subprocess. `QiskitSolver` spawns one Python process per solver instance using POSIX pipes, keeps it alive across rebalancing periods, and communicates via newline-delimited JSON over stdin/stdout. This gives process-level isolation (a worker crash restarts the process without corrupting C++ state) rather than shared memory. The tradeoff is explicit: subprocess IPC is safer than shared memory for a third-party quantum execution environment, at the cost of serialization overhead per call. The `--ibm-benchmark` collect step retains one `std::system()` call for the collect operation — a one-shot administrative invocation not in the optimization hot path, with no untrusted input reaching the command string.
+\min_w ; w^T \Sigma w - \lambda \mu^T w
+
+subject to portfolio constraints.
+
+The important property is convexity. The feasible region contains no holes or local traps, which means the solution can be found efficiently and exactly. This is why Markowitz remains the production baseline seventy years later.
+
+### **Efficient Frontier**
+
+The set of portfolios that maximize expected return for each achievable level of volatility.
+
+Every portfolio below the frontier is inefficient.
+Every portfolio above the frontier is impossible under the constraint set.
+
+The frontier is therefore both an optimization target and a geometric boundary condition.
+
+### **Covariance Matrix**
+
+A matrix describing how assets move relative to one another.
+
+Positive covariance means two assets tend to move together.
+Negative covariance means they tend to move in opposite directions.
+
+Portfolio diversification exists because covariance exists. Without covariance structure, every portfolio optimization problem degenerates into ranking assets by expected return.
+
+This benchmark uses EWMA covariance estimation with (\lambda = 0.94), which weights recent observations more heavily than older ones.
+
+## Quantum Computing
+
+### **QUBO (Quadratic Unconstrained Binary Optimization)**
+
+An optimization formulation where every variable is binary and the objective function is quadratic:
+
+\min_x ; x^T Q x
+
+QUBO is the native language of many quantum optimization systems.
+
+Portfolio optimization becomes QUBO by discretizing continuous weights into binary variables. This benchmark uses 2-bit encoding per asset, which restricts weights to multiples of 1/3.
+
+This translation is lossy.
+Convexity disappears.
+The smooth Markowitz landscape becomes a discrete combinatorial search problem.
+
+Exhibit C exists because of this transformation.
+
+### **Convex Polytope**
+
+The feasible region of the classical Markowitz problem.
+
+“Convex” means any straight line drawn between two feasible points remains feasible.
+“Polytope” means the region is bounded by flat constraint surfaces.
+
+Convexity is the reason classical portfolio optimization is tractable. QUBO destroys convexity by discretizing the search space into binary states.
+
+Classical optimization searches a smooth landscape.
+QUBO searches a jagged one.
+
+### **QAOA (Quantum Approximate Optimization Algorithm)**
+
+A gate-model quantum optimization algorithm for discrete search problems.
+
+QAOA alternates between:
+
+1. a phase operator encoding the objective function
+2. a mixing operator redistributing probability mass through the search space
+
+Measurement samples candidate solutions from the resulting quantum state distribution.
+
+In this benchmark, QAOA runs at depth-1 because deeper circuits exceed current NISQ coherence limits.
+
+### **QAMO (Quantum Alternating Mean-field Optimization)**
+
+A variational quantum optimization method using a mean-field approximation rather than full entanglement structure.
+
+Instead of modeling all qubit interactions exactly, QAMO approximates each qubit relative to the average state of its neighbors. This reduces computational complexity but changes the optimization landscape substantially.
+
+In this benchmark, QAMO generated weight distributions that became unstable after constraint projection. That instability is algorithmic behavior, not implementation error.
+
+### **NISQ (Noisy Intermediate-Scale Quantum)**
+
+The current era of quantum hardware.
+
+“Intermediate-scale” means enough qubits exist to run interesting circuits.
+“Noisy” means the qubits decohere before long computations finish reliably.
+
+Modern quantum hardware is therefore computationally powerful and operationally fragile at the same time.
+
+Every IBM hardware result in this benchmark is a NISQ result.
+
+### **Circuit Depth**
+
+The number of sequential gate layers required to execute a quantum circuit.
+
+Depth matters because decoherence accumulates over time. Shallow circuits survive long enough to preserve useful signal. Deep circuits often do not.
+
+The IBM circuits in this benchmark ranged from 757 to 1,267 gates. At those depths, noise dominated the measurement distribution.
+
+### **Decoherence**
+
+The process by which a qubit loses its quantum state through interaction with its environment.
+
+Quantum computation depends on maintaining superposition and entanglement long enough for interference patterns to emerge. Decoherence destroys those patterns before measurement completes.
+
+Current quantum hardware is effectively a race condition against physics.
+
+### **Bitstring**
+
+The measured output of a quantum circuit.
+
+Each qubit collapses to either 0 or 1 during measurement. The resulting binary sequence is the bitstring.
+
+In QUBO optimization, each bitstring represents a candidate solution. Repeated circuit execution produces a probability distribution over candidate solutions.
+
+Useful optimization requires the good bitstrings to appear more often than random chance predicts.
+
+In the IBM runs here, the dominant bitstring appeared only 1–2 times out of 1024 shots. Statistically, that is indistinguishable from noise.
+
+### **pybind11 (and what was actually built)**
+
+pybind11 embeds Python directly inside a C++ process through shared memory bindings.
+
+This project intentionally does not do that.
+
+`QiskitSolver` launches a persistent Python subprocess and communicates through newline-delimited JSON over stdin/stdout pipes. The choice is architectural. Shared memory gives lower latency. Process isolation gives fault containment.
+
+If the Python worker crashes, the C++ engine survives.
+
+In production systems, that trade is often correct.
 
 ---
 
