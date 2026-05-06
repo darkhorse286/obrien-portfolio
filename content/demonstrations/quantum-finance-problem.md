@@ -1,3 +1,10 @@
+---
+title: "The Uncertainty Principle Has a Sharpe Ratio: Quantum Portfolio Optimization in C++"
+description: "Can quantum optimization be integrated into production financial infrastructure without rewriting the infrastructure itself?"
+date: "May 2026"
+tech: "C++17, Qiskit, IBM Quantum, Python 3.8+"
+demo: "https://github.com/darkhorse286/portfolio-optimizer"
+---
 # The Uncertainty Principle Has a Sharpe Ratio: Quantum Portfolio Optimization in C++
 
 ## Proposition
@@ -42,7 +49,6 @@ A falsifiable systems claim. This project refutes H₀. The evidence follows.
 ## Methodology
 
 ### The Language Decision
-
 The obvious implementation path is wrong.
 
 One could:
