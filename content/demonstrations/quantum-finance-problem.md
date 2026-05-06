@@ -2,25 +2,40 @@
 
 ## Proposition
 
-**Quantum portfolio optimization does not require a quantum-native application. It requires a production-grade classical foundation with intentional extension points, and C++ is uniquely positioned to build both.**
+**Quantum portfolio optimization does not require a quantum-native system. It requires a production-grade classical system with a quantum boundary condition. C++ is the only language positioned to satisfy both simultaneously.**
 
-This is not obvious. The quantum computing ecosystem lives in Python. Qiskit, Ocean SDK, Cirq — all Python. Every tutorial, every research notebook, every demo: Python. The path of least resistance is to write a Python optimizer, bolt on Qiskit, and call it quantum finance.
+This claim appears false at first inspection. The quantum computing ecosystem is Python: Qiskit, Ocean SDK, Cirq, Jupyter Notebooks, etc. Every tutorial begins with `pip install qiskit`. Every demo ends before deployment. This is not accidental. Python optimizes for research velocity. Production trading systems optimize for determinism, bounded latency, and operational survivability under pathological conditions. Research velocity is not on that list.
 
-That path leads nowhere production systems actually live.
+The industry mistake is therefore predictable: "If quantum finance exists in Python, then production quantum finance must also be Python."
+This inference is invalid.
+The actual problem is not: can Python call a quantum solver?
+That problem was solved years ago.
+
+The actual problem is: Can quantum optimization be integrated into production financial infrastructure without rewriting the infrastructure itself?
+
+That problem remains mostly unsolved. This post is an attempt.
 
 ---
 
 ## Given Constraints
 
-Let **S** = the domain of production financial systems (HFT, risk engines, execution infrastructure)  
-Let **Q** = the domain of quantum computing tooling (Qiskit, QAOA, QUBO solvers)  
-Let **S ∩ Q** = the integration problem
+Let **S** = production financial systems  
+Let **Q** = practical quantum optimization tooling
+Let **B(S,Q)** = the boundary layer connecting them 
 
-**Observation:** S is overwhelmingly C and C++. Q is overwhelmingly Python. The intersection is nearly empty, not because the problem is hard, but because nobody has built the bridge.
+Empirically:
+S ≈ C/C++
+Q ≈ Python
 
-**Null hypothesis H₀:** Quantum optimization cannot be meaningfully integrated into a production C++ financial system without architectural overhaul.
+Therefore: **S ∩ Q → ∅**
 
-This project refutes H₀.
+Not because quantum optimization is impossible. Because nobody built B(S,Q) correctly.
+
+**Null hypothesis H₀:** A quantum optimizer cannot be integrated into a production C++ portfolio system without architectural compromise or systemic rewrite.
+
+This project treats H₀ as an engineering target. Not a philosophical objection. Not a market thesis.
+
+A falsifiable systems claim. This project refutes H₀. The evidence follows.
 
 ---
 
@@ -28,19 +43,30 @@ This project refutes H₀.
 
 ### The Language Decision
 
-Four languages present themselves as candidates. The argument for each is non-trivial. The argument against three of them is decisive.
+The obvious implementation path is wrong.
 
-**Python** is where the quantum ecosystem lives. Qiskit runs natively. NumPy handles the linear algebra. The covariance matrix computation is two lines. This is precisely the problem: Python hands you everything already solved. A Python quantum portfolio optimizer demonstrates that you can install libraries. It does not demonstrate that you can build systems. More importantly, it does not solve the production gap. Quantum tooling in Python never reaches the C++ systems it needs to augment.
+One could:
 
-**Rust** has a legitimate claim. Full memory ownership, deterministic performance, modern type system. The argument fails at the ecosystem boundary: there are no production-grade Rust bindings for Qiskit, Ocean SDK, or any major gate-model quantum framework. The quantum extension roadmap stays theoretical.
+1. Write the optimizer in Python
+1. Wrap Qiskit directly
+1. Use NumPy for covariance computation
+1. Produce benchmark graphs
+1. Declare victory
 
-**C#** pairs naturally with Q# (Microsoft's quantum stack is a genuine, well-engineered ecosystem). The objection is strategic, not technical: Q# locks you into Microsoft's quantum hardware and simulator path. The broader landscape (IBM, D-Wave, IonQ) is inaccessible without significant re-architecture.
+This proves only that Python libraries can call other Python libraries. It does not solve the integration problem.
+Production trading infrastructure does not disappear merely because a notebook executed successfully. The system that matters — risk engines, execution infrastructure, portfolio accounting, analytics pipelines, reconciliation layers — already exists, overwhelmingly, in C and C++.
+Any quantum system incapable of entering that environment is academically interesting and operationally irrelevant.
 
-**C++** is the answer. Not because it is convenient (it is not), but because it is the correct answer to the actual problem. Production financial systems are in C++. Quantum tooling is in Python. The bridge between them is a persistent Python worker subprocess: `QiskitSolver` spawns one Python process per solver instance on first call, keeps it alive across rebalancing periods, and communicates over stdin/stdout pipes using newline-delimited JSON. No Python startup cost per rebalancing period. Process-level isolation — a worker crash restarts the process without touching C++ state. The C++ system calls the Python quantum solver the same way it calls any other solver: through the abstract optimizer interface. The rest of the system (data layer, risk models, backtest engine, analytics) is untouched.
+Therefore the architecture must invert the usual assumption:
+    - Quantum is the extension
+    - C++ is the host system
+Not the reverse.
 
 ### The Architecture Decision
 
-The key design insight is that the optimizer interface must be solver-agnostic from day one.
+The bridge is intentionally narrow.
+
+A persistent Python worker subprocess executes quantum workloads behind a stable C++ optimizer interface:
 
 ```cpp
 namespace portfolio::optimizer {
@@ -61,7 +87,16 @@ public:
 }
 ```
 
-`MeanVarianceOptimizer` is one concrete class behind this interface. `QiskitSolver` is another. The backtest engine, the analytics layer, the report generator... none of them know or care which solver ran. If the architecture is sound, adding quantum solvers should require no changes to any of those layers. Six namespaces, 176 passing tests, and three IBM backends later, the claim either holds or it doesn't.
+Everything above the interface remains unchanged:
+    - backtest engine
+    - analytics
+    - attribution
+    - reporting
+    - transaction cost modeling
+    - risk projection
+Quantum execution becomes an implementation detail.
+
+This is the entire architectural point. The optimizer is replaceable. The system is not.
 
 ### The Solver Decisions
 
