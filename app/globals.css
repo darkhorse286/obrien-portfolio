@@ -78,6 +78,12 @@ body {
   list-style-type: disc;
 }
 
+.markdown-content ol {
+  margin: 1.5rem 0;
+  padding-left: 1.5rem;
+  list-style-type: decimal;
+}
+
 .markdown-content li {
   margin-bottom: 0.5rem;
   color: #374151;
