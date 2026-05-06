@@ -17,11 +17,19 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
     setStatus('submitting');
 
     const formData = new FormData(e.currentTarget);
-    
+    const payload = {
+      name: formData.get('name'),
+      email: formData.get('email'),
+      message: formData.get('message'),
+    };
+
     try {
-      const response = await fetch('https://api.web3forms.com/submit', {
+      const response = await fetch('/api/contact', {
         method: 'POST',
-        body: formData,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
       });
 
       if (response.ok) {
@@ -56,11 +64,6 @@ export default function ContactModal({ isOpen, onClose }: ContactModalProps) {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-          {/* Web3Forms Access Key - Replace with yours */}
-          <input type="hidden" name="access_key" value="0a756962-2ddd-43b2-8441-0f1d9ce18656" />
-          <input type="hidden" name="subject" value="New Contact from obrienandson.com" />
-          <input type="hidden" name="from_name" value="O'Brien & Son Contact Form" />
-          
           {/* Name */}
           <div>
             <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
