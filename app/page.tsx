@@ -4,7 +4,7 @@ export default function Home() {
   return (
     <main className="min-h-[85vh]">
       {/* Hero Section */}
-      <div className="bg-gradient-to-b from-amber-50 via-white to-gray-50 py-20">
+      <div className="bg-gradient-to-b from-green-50 via-white to-gray-50 py-20">
         <div className="max-w-5xl mx-auto px-6">
           <div className="mb-6">
             <span className="inline-block text-sm font-semibold text-amber-700 bg-amber-100 px-4 py-2 rounded-full mb-4">
@@ -105,7 +105,9 @@ export default function Home() {
       {/* Featured Work */}
       <div className="max-w-5xl mx-auto px-6 py-16">
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-3xl font-bold text-gray-900">Featured Work</h2>
+          <h2 className="text-3xl font-bold text-gray-900">
+            Featured Work
+          </h2>
           <Link 
             href="/demonstrations"
             className="text-gray-600 hover:text-gray-900 font-semibold inline-flex items-center gap-2"
