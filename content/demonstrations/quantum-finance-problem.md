@@ -14,11 +14,15 @@ demo: "https://github.com/darkhorse286/portfolio-optimizer"
 This claim appears false at first inspection. The quantum computing ecosystem is Python: Qiskit, Ocean SDK, Cirq, Jupyter Notebooks, etc. Every tutorial begins with `pip install qiskit`. Every demo ends before deployment. This is not accidental. Python optimizes for research velocity. Production trading systems optimize for determinism, bounded latency, and operational survivability under pathological conditions. Research velocity is not on that list.
 
 The industry mistake is therefore predictable: "If quantum finance exists in Python, then production quantum finance must also be Python."
+
 This inference is invalid.
+
 The actual problem is not: can Python call a quantum solver?
+
 That problem was solved years ago.
 
-The actual problem is: Can quantum optimization be integrated into production financial infrastructure without rewriting the infrastructure itself?
+The actual problem is:  
+Can quantum optimization be integrated into production financial infrastructure without rewriting the infrastructure itself?
 
 That problem remains mostly unsolved. This post is an attempt.
 
@@ -27,11 +31,11 @@ That problem remains mostly unsolved. This post is an attempt.
 ## Given Constraints
 
 Let **S** = production financial systems  
-Let **Q** = practical quantum optimization tooling
+Let **Q** = practical quantum optimization tooling   
 Let **B(S,Q)** = the boundary layer connecting them 
 
-Empirically:
-S ≈ C/C++
+Empirically:  
+S ≈ C/C++  
 Q ≈ Python
 
 Therefore: **S ∩ Q → ∅**
@@ -49,23 +53,27 @@ A falsifiable systems claim. This project refutes H₀. The evidence follows.
 ## Methodology
 
 ### The Language Decision
-The obvious implementation path is wrong.
 
+The obvious implementation path is wrong.
 One could:
 
 1. Write the optimizer in Python
-1. Wrap Qiskit directly
-1. Use NumPy for covariance computation
-1. Produce benchmark graphs
-1. Declare victory
+2. Wrap Qiskit directly
+3. Use NumPy for covariance computation
+4. Produce benchmark graphs
+5. Declare victory
 
 This proves only that Python libraries can call other Python libraries. It does not solve the integration problem.
-Production trading infrastructure does not disappear merely because a notebook executed successfully. The system that matters — risk engines, execution infrastructure, portfolio accounting, analytics pipelines, reconciliation layers — already exists, overwhelmingly, in C and C++.
+
+Production trading infrastructure does not disappear merely because a notebook executed successfully. The system that matters already exists, overwhelmingly, in C and C++: risk engines, execution infrastructure, portfolio accounting, analytics pipelines, reconciliation layers.
+
 Any quantum system incapable of entering that environment is academically interesting and operationally irrelevant.
 
 Therefore the architecture must invert the usual assumption:
-    - Quantum is the extension
-    - C++ is the host system
+
+- Quantum is the extension
+- C++ is the host system
+
 Not the reverse.
 
 ### The Architecture Decision
@@ -94,12 +102,14 @@ public:
 ```
 
 Everything above the interface remains unchanged:
-    - backtest engine
-    - analytics
-    - attribution
-    - reporting
-    - transaction cost modeling
-    - risk projection
+
+- backtest engine
+- analytics
+- attribution
+- reporting
+- transaction cost modeling
+- risk projection
+
 Quantum execution becomes an implementation detail.
 
 This is the entire architectural point. The optimizer is replaceable. The system is not.
@@ -136,7 +146,7 @@ The `QiskitSolver` bridge spawns one persistent Python worker subprocess per sol
 
 ### Exhibit B: The Benchmark
 
-`BenchmarkRunner` executed solvers over identical problem instances: same 10-asset universe, same walk-forward rebalancing schedule, same transaction cost model, same analytics pipeline. Backtest period: January 2022 – May 2023.
+`BenchmarkRunner` executed solvers over identical problem instances: same 10-asset universe, same walk-forward rebalancing schedule, same transaction cost model, same analytics pipeline. Backtest data period: January 2022 – May 2023.
 
 **Scope and limitations:** Results from walk-forward solvers represent the mean of 4 runs. Variance across runs is reported in Exhibit G. The backtest period covers a single market regime: a rising rate environment with a growth asset selloff (January 2022 – May 2023). SPY returned approximately -5.8% over this specific window (January 2022 – May 2023), which includes both the 2022 drawdown (-18.2% for the full calendar year) and partial recovery through May 2023. Markowitz returned +2.5% — an active return of approximately +8.3% over SPY, consistent with the Brinson-Fachler attribution total of 8.31% shown in the attribution section below. The absolute Sharpe ratio (0.099) partially obscures this outperformance because Sharpe measures return against volatility, not against the benchmark. Cross-regime generalizability is not established. The 2022–2023 period systematically rewarded concentrated positions: assets that held or gained during the rate-driven selloff outperformed broadly. QUBO-based solvers that produce concentrated allocations by construction benefited from this regime. Whether quantum Aer outperformance persists in bull markets, liquidity crises, or sideways regimes is unknown. IBM hardware results are single submissions, not walk-forward (see Exhibit E).
 
