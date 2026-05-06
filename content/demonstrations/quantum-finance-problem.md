@@ -101,17 +101,7 @@ public:
 }
 ```
 
-Everything above the interface remains unchanged:
-
-- backtest engine
-- analytics
-- attribution
-- reporting
-- transaction cost modeling
-- risk projection
-
-Quantum execution becomes an implementation detail.
-
+Everything above the interface remains unchanged. The backtest engine, analytics, attribution, reporting, transaction cost modeling, and risk projection all untouched. In this architecture, quantum execution becomes an implementation detail.
 This is the entire architectural point. The optimizer is replaceable. The system is not.
 
 ### The Solver Decisions
