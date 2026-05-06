@@ -99,6 +99,9 @@ The `QiskitSolver` bridge spawns one persistent Python worker subprocess per sol
 
 **Scope and limitations:** Results from walk-forward solvers represent the mean of 4 runs. Variance across runs is reported in Exhibit G. The backtest period covers a single market regime: a rising rate environment with a growth asset selloff (January 2022 – May 2023). SPY returned approximately -5.8% over this specific window (January 2022 – May 2023), which includes both the 2022 drawdown (-18.2% for the full calendar year) and partial recovery through May 2023. Markowitz returned +2.5% — an active return of approximately +8.3% over SPY, consistent with the Brinson-Fachler attribution total of 8.31% shown in the attribution section below. The absolute Sharpe ratio (0.099) partially obscures this outperformance because Sharpe measures return against volatility, not against the benchmark. Cross-regime generalizability is not established. The 2022–2023 period systematically rewarded concentrated positions: assets that held or gained during the rate-driven selloff outperformed broadly. QUBO-based solvers that produce concentrated allocations by construction benefited from this regime. Whether quantum Aer outperformance persists in bull markets, liquidity crises, or sideways regimes is unknown. IBM hardware results are single submissions, not walk-forward (see Exhibit E).
 
+![Solver Comparison — Equity Curves](/demonstrations/quantum-finance-problem/quantum_benchmark_equity_curves.png)
+*All walk-forward solvers normalized to 1.0 at inception. Markowitz (blue) and QUBO/SA (orange) finish near or below par. QAOA Informed (green) is the strongest walk-forward performer. IBM hardware results (single submissions, not walk-forward) are not shown — see Exhibit E.*
+
 **Universe:**
 
 | Ticker | Company | Sector |
@@ -437,7 +440,7 @@ pybind11 is a C++ library for embedding a Python interpreter directly in a C++ p
 
 ### System architecture
 
-![Portfolio optimizer architecture](architecture_diagram.svg)
+![Portfolio optimizer architecture](/demonstrations/quantum-finance-problem/architecture_diagram.svg)
 
 *The C++ system (purple) and Python/Qiskit layer (green) are separated by a single boundary: `QiskitSolver` (coral), which bridges via a persistent subprocess with stdin/stdout pipes. Every layer above it (backtest engine, analytics, report generator) is unaware the boundary exists. Solid arrows show the optimizer call chain. Dashed arrows show data flowing up from the risk and data layers.*
 
@@ -445,7 +448,7 @@ pybind11 is a C++ library for embedding a Python interpreter directly in a C++ p
 
 ### IBM Quantum Job Runtime
 
-![IBM Quantum job status and usage](ibm_job_runtime.png)
+![IBM Quantum job status and usage](/demonstrations/quantum-finance-problem/ibm_job_runtime.png)
 
 *QAMOO job submitted to ibm_fez, April 24, 2026. Total completion time 3m 41s. Actual Qiskit Runtime usage 2s. The delta is queue wait and backend provisioning overhead. The benchmark's wall-clock solve times include this infrastructure cost.*
 
@@ -453,6 +456,6 @@ pybind11 is a C++ library for embedding a Python interpreter directly in a C++ p
 
 ### Quantum Circuit Diagram
 
-![QAMO quantum circuit submitted to ibm_fez](circuit-d7lo7t2t99kc73d1l1u0.svg)
+![QAMO quantum circuit submitted to ibm_fez](/demonstrations/quantum-finance-problem/circuit-d7lo7t2t99kc73d1l1u0.svg)
 
 *The QAMO circuit submitted to ibm_fez, April 23, 2026. Each horizontal line is a qubit. Each column of gate operations is one unit of depth. This circuit has a depth of 1,158. See Appendix A: Circuit Depth for context on why depth is the binding constraint on current NISQ hardware.*
