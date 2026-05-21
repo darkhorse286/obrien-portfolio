@@ -319,7 +319,7 @@ QAOA Informed σ 0.093 is the outlier. Market data augmentation, while not consi
 
 ### Exhibit H: The Frontier
 
-QAMOO's multi-objective lambda sweep produces a Pareto frontier directly comparable to the classical efficient frontier. This is a single-submission, unconstrained result — see Table 2 note in Exhibit B.
+QAMOO's multi-objective lambda sweep produces a Pareto frontier directly comparable to the classical efficient frontier. The result is derived from a single unconstrained submission. Methodological limitations are discussed in the Table 2 note in Exhibit B.
 
 | Method | Min-Vol Return | Min-Vol Volatility | Max-Sharpe Return | Max-Sharpe Volatility | Max-Sharpe Ratio |
 |---|---|---|---|---|---|
@@ -378,7 +378,7 @@ Level 3 transpilation reduced IBM circuit depths from the baseline range of 757�
 
 For Aer solvers, level 1 transpilation was retained to avoid disrupting the COBYLA parameter landscape. The marginal improvement in QAOA Uninformed mean Sharpe (+0.083) and the marginal degradation across QAMO variants confirm the primary conclusion: **the variance in Aer results is dominated by 1,024-shot undersampling of the 2²⁰ bitstring space, not by circuit structure or transpilation quality.** Changing the transpilation level while holding shots constant at 1,024 does not materially change the outcome distribution. More shots is the correct next lever.
 
-The practical constraint is cost. QAMOO with error mitigation on IBM hardware ran at approximately 4.5 minutes per round. At 3 rounds per invocation, a single `--ibm-benchmark` call consumed 13.5 minutes of Qiskit Runtime — approximately $200 in credit value and most of a monthly free tier allocation. This is the real cost of NISQ-era error mitigation at current hardware pricing, and it is a legitimate production consideration independent of whether the mitigation improves signal quality.
+The practical constraint is cost. QAMOO with error mitigation on IBM hardware required approximately 4.5 minutes per round. At 3 rounds per invocation, a single --ibm-benchmark call consumed 13.5 minutes of Qiskit Runtime, representing roughly $200 in runtime credit value and most of a monthly free-tier allocation. This is the operational cost of NISQ-era error mitigation under current hardware pricing. It remains a legitimate production concern independent of whether the mitigation materially improves signal quality.
 
 ---
 
