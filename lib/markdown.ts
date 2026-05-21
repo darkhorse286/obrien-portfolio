@@ -1,14 +1,18 @@
 import fs from 'fs';
 import path from 'path';
 import matter from 'gray-matter';
-import { remark } from 'remark';
-import html from 'remark-html';
+import { unified } from 'unified';
+import remarkParse from 'remark-parse';
 import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
+import remarkRehype from 'remark-rehype';
+import rehypeKatex from 'rehype-katex';
+import rehypeStringify from 'rehype-stringify';
 import { metadata } from '@/app/layout';
 
 const contentDirectory = path.join(process.cwd(), 'content');
 
-/* 
+/*
 * Reads markdown file from content directory and returns its metadata and HTML content.
 */
 
@@ -19,9 +23,13 @@ export async function getMarkdownContent(filepath: string) {
     const {data, content} = matter(fileContents);
 
     // Convert markdown to HTML
-    const processedContent = await remark()
+    const processedContent = await unified()
+        .use(remarkParse)
         .use(remarkGfm)
-        .use(html, { sanitize: false })
+        .use(remarkMath)
+        .use(remarkRehype, { allowDangerousHtml: true })
+        .use(rehypeKatex)
+        .use(rehypeStringify, { allowDangerousHtml: true })
         .process(content);
     const contentHtml = processedContent
         .toString()

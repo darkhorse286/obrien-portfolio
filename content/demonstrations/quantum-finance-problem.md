@@ -106,7 +106,7 @@ This is the entire architectural point. The optimizer is replaceable. The system
 
 ### The Solver Decisions
 
-Classical baseline: OSQP (operator splitting quadratic programming, Stellato et al. 2020). This is not a toy solver. OSQP runs in aerospace control systems, robotics, and production trading infrastructure. It is the correct baseline — rigorous enough that beating it means something.
+Classical baseline: OSQP (operator splitting quadratic programming, Stellato et al. 2020). This is not a toy solver. OSQP runs in aerospace control systems, robotics, and production trading infrastructure. Any solver that outperforms it is immediately credible.
 
 Quantum reformulation: QUBO. The Markowitz mean-variance objective (minimize `wᵀΣw - λμᵀw` subject to `Σwᵢ = 1`, `wᵢ ≥ 0`) maps to QUBO by discretizing weights into binary variables and encoding constraints as penalty terms. This benchmark uses 2-bit encoding per asset, meaning each weight is representable as a multiple of 1/3 (0, 33.3%, 66.7%, 100%). The same QUBO matrix feeds both the classical simulated annealing solver and every quantum hardware interface. Identical problem formulation, different solver path.
 
@@ -138,10 +138,10 @@ The `QiskitSolver` bridge spawns one persistent Python worker subprocess per sol
 
 `BenchmarkRunner` executed solvers over identical problem instances: same 10-asset universe, same walk-forward rebalancing schedule, same transaction cost model, same analytics pipeline. Backtest data period: January 2022 – May 2023.
 
-**Scope and limitations:** Results from walk-forward solvers represent the mean of 4 runs. Variance across runs is reported in Exhibit G. The backtest period covers a single market regime: a rising rate environment with a growth asset selloff (January 2022 – May 2023). SPY returned approximately -5.8% over this specific window (January 2022 – May 2023), which includes both the 2022 drawdown (-18.2% for the full calendar year) and partial recovery through May 2023. Markowitz returned +2.5% — an active return of approximately +8.3% over SPY, consistent with the Brinson-Fachler attribution total of 8.31% shown in the attribution section below. The absolute Sharpe ratio (0.099) partially obscures this outperformance because Sharpe measures return against volatility, not against the benchmark. Cross-regime generalizability is not established. The 2022–2023 period systematically rewarded concentrated positions: assets that held or gained during the rate-driven selloff outperformed broadly. QUBO-based solvers that produce concentrated allocations by construction benefited from this regime. Whether quantum Aer outperformance persists in bull markets, liquidity crises, or sideways regimes is unknown. IBM hardware results are single submissions, not walk-forward (see Exhibit E).
+**Scope and limitations:** Results from walk-forward solvers represent the mean of 4 runs. Variance across runs is reported in Exhibit G. The backtest period covers a single market regime: a rising rate environment with a growth asset selloff (January 2022 to May 2023). SPY returned approximately -5.8% over this window, including both the 2022 drawdown (-18.2% for the full calendar year) and the partial recovery through May 2023. Markowitz returned +2.5%, representing an active return of approximately +8.3% over SPY, consistent with the Brinson-Fachler attribution total of 8.31% shown below. The absolute Sharpe ratio (0.099) partially obscures this outperformance because Sharpe measures return relative to volatility rather than relative to the benchmark. Cross-regime generalizability is not established. The 2022 to 2023 period systematically rewarded concentrated positions because assets that held or gained during the rate-driven selloff outperformed broadly. QUBO-based solvers that produce concentrated allocations by construction benefited from this regime. Whether quantum Aer outperformance persists in bull markets, liquidity crises, or sideways regimes remains unknown. IBM hardware results are single submissions rather than walk-forward evaluations (see Exhibit E).
 
 ![Solver Comparison — Equity Curves](/demonstrations/quantum-finance-problem/quantum_benchmark_equity_curves.png)
-*All walk-forward solvers normalized to 1.0 at inception. Markowitz (blue) and QUBO/SA (orange) finish near or below par. QAOA Informed (green) is the strongest walk-forward performer. IBM hardware results (single submissions, not walk-forward) are not shown — see Exhibit E.*
+*Markowitz (blue) and QUBO/SA (orange) finish near or below par. QAOA Informed (green) is the strongest walk-forward performer. IBM hardware results are excluded here because they were single submissions rather than walk-forward evaluations. See Exhibit E.*
 
 **Universe:**
 
@@ -184,7 +184,9 @@ All solvers below ran through the full backtest engine with constraint projectio
 | QAMO Uninformed | -$106,000 | $21,666 | -$127,666 | n/m |
 | QAMO Informed | -$156,000 | $25,090 | -$181,090 | n/m |
 
-Net return multiples are computed on a $1M initial portfolio. Transaction costs use the configured model: 0.1% commission, 5bps slippage, 0.2% linear market impact coefficient. These figures do not account for market impact scaling at larger AUM — at $100M, the 0.2% market impact coefficient would generate costs that likely compress or eliminate the alpha for high-turnover quantum solvers. A second limitation: the linear market impact model materially underestimates execution cost at the turnover levels observed for QAMO and QAMOO (755–815% annually). At 68% monthly turnover concentrated into 2–3 assets, real-world market impact is nonlinear and the net return figures for those solvers are optimistic. This model is appropriate for Markowitz at 282% annual turnover; it is not appropriate for QAMO at 815%.
+Net return multiples are computed on a $1M initial portfolio. Transaction costs use the configured model: 0.1% commission, 5bps slippage, and a 0.2% linear market impact coefficient. These figures do not account for market impact scaling at larger AUM. At $100M, the 0.2% market impact coefficient would likely compress or eliminate the alpha generated by high-turnover quantum solvers.
+
+A second limitation is that the linear market impact model materially underestimates execution cost at the turnover levels observed for QAMO and QAMOO (755% to 815% annually). At 68% monthly turnover concentrated into 2 to 3 assets, real-world market impact becomes nonlinear, making the reported net returns for those solvers optimistic. This model is appropriate for Markowitz at 282% annual turnover. It is not appropriate for QAMO at 815%.
 
 **IBM operational cost:** 28 hardware submissions consumed 1 minute 17 seconds of actual Qiskit Runtime on IBM's open instance (10 minutes free tier). Queue wait and provisioning overhead (not billed) totaled approximately 3–4 hours across all submissions. The marginal cost of the IBM hardware component of this experiment was effectively zero under the free tier.
 
@@ -206,7 +208,7 @@ QUBO with simulated annealing is the worst walk-forward solver in the suite: mea
 
 The reason is structural. Markowitz solves a continuous quadratic program over a convex polytope. The feasible solution space has flat faces, no holes, and admits an exact solution. QUBO in this benchmark uses 2-bit encoding per asset, representing each weight as one of four values: 0, 1/3, 2/3, or 1. With a 30% maximum weight constraint and constraint projection applied, the effective feasible weight per asset is further restricted. Simulated annealing then searches this already-degraded discrete landscape with a classical heuristic that makes no guarantees about solution quality. The discretization loss and the search heuristic compound. The result is mean return -7.3% across 4 runs.
 
-Now look at QAOA Uninformed, operating on the same QUBO matrix with the same constraint projection: mean Sharpe 0.436 across 4 runs (σ 0.681). Both solvers receive identical inputs. Both have constraints enforced identically at the backtest engine level. The quantum sampling procedure finds substantially better solutions in the same discrete landscape that classical annealing failed to navigate — on average, across every run.
+Now look at QAOA Uninformed, operating on the same QUBO matrix with the same constraint projection: mean Sharpe 0.436 across 4 runs (σ 0.681). Both solvers receive identical inputs. Both have constraints enforced identically at the backtest engine level. Across all four runs, the quantum sampler found better solutions in the same discrete landscape than classical annealing.
 
 The σ of 0.681 for QAOA Uninformed is the honest caveat. A single run produced Sharpe -0.061; another produced Sharpe 1.053. The mean is positive, the gap over QUBO is real, but no single run should be treated as representative. This is what 1,024 shots sampling 0.1% of the 2²⁰ bitstring space looks like in practice: the quantum sampler finds better solutions than classical annealing on average, but the per-run variance is high. More shots would reduce this variance directly.
 
@@ -239,7 +241,9 @@ All three IBM backends (ibm_fez, ibm_kingston, ibm_marrakesh) were submitted wit
 
 The optimization signal at current hardware coherence levels is a different matter. The null hypothesis for IBM hardware, namely that quantum circuits on real hardware can optimize a portfolio better than random sampling, is not refutable at these circuit depths. That is not a permanent conclusion. It is a current measurement.
 
-Across 28 unique IBM hardware submissions on ibm_fez and ibm_kingston, the top bitstring appeared in 1 or 2 out of 1024 shots in every single submission — the absolute minimum detectable signal with 1024 shots. This is statistically indistinguishable from random sampling. The circuits ran. The hardware responded. The decoherence at these circuit depths (757–1,267 gates) erased the optimization information before measurement.
+Across 28 unique IBM hardware submissions on ibm_fez and ibm_kingston, the top bitstring appeared only 1 or 2 times out of 1024 shots in every submission. That is the minimum detectable signal at a 1024-shot sampling depth. Statistically, the result is indistinguishable from random sampling.
+
+The circuits ran. The hardware responded. Decoherence at circuit depths between 757 and 1,267 gates erased the optimization signal before measurement.
 
 There is also a formulation incompatibility that would affect noise-free hardware equally. With 2-bit encoding, the minimum representable non-zero portfolio weight is 1/3 = 33.3%. The configured maximum weight constraint is 30%. These are irreconcilable without either more encoding bits (not locally simulable at n=10 assets with current hardware) or a higher constraint cap. Every IBM weight vector violates the maximum weight constraint by construction, regardless of hardware noise. The post-fix constraint projection normalizes these vectors before execution, but the underlying formulation mismatch remains.
 
@@ -262,25 +266,27 @@ There is also a formulation incompatibility that would affect noise-free hardwar
 | QAMO | ibm_marrakesh | 0.807 | 37.2% | 18.8% | 789 | 2026-04-29 |
 | QAMOO | ibm_marrakesh | 1.051 | 36.4% | 14.1% | 820 | 2026-04-29 |
 
-The performance variance across backends — QAOA ibm_fez 1.140, ibm_kingston 0.221, ibm_marrakesh 1.310 on the same algorithm and same problem — reflects backend calibration state and noise-derived weight randomness, not optimization quality differences. The infrastructure that submitted these jobs and processed their results is production-grade. The signal the hardware returned is not yet meaningful.
+The performance variance across backends reflects backend calibration state and noise-derived weight randomness rather than optimization quality differences. QAOA produced Sharpe ratios of 1.140 on ibm_fez, 0.221 on ibm_kingston, and 1.310 on ibm_marrakesh despite running the same algorithm against the same problem formulation. The infrastructure that submitted these jobs and processed their results is production-grade. The signal returned by the hardware is not yet meaningful.
 
-**The appropriate null hypothesis for IBM hardware:** at circuit depths of 757–1,267 on current NISQ hardware, the quantum optimization signal is not detectable. That is a current hardware constraint, not a statement about the algorithm. Coherence times are improving. Error mitigation techniques are maturing. The experiment should be revisited as hardware advances and circuit depths become viable — specifically when the top bitstring fraction exceeds 5% of shots consistently, and when 4-bit encoding becomes simulable locally or feasible on hardware with adequate coherence.
+**The appropriate null hypothesis for IBM hardware:** at circuit depths between 757 and 1,267 on current NISQ hardware, the quantum optimization signal is not detectable. That is a hardware limitation, not a statement about the algorithm itself. Coherence times are improving. Error mitigation techniques are maturing. The experiment should be revisited as hardware advances and viable circuit depths increase. The key threshold is whether the dominant bitstring exceeds 5% of shots consistently and whether 4-bit encoding becomes locally simulable or feasible on hardware with sufficient coherence.
 
 ### Exhibit F: Informed vs. Uninformed
 
 QAOA Informed adds EWMA expected returns and covariance to the problem file before circuit submission. QAOA Uninformed receives only the raw QUBO Q matrix.
 
-Across four runs, the picture is unambiguous: QAOA Informed (mean Sharpe 0.712, σ 0.187) outperforms QAOA Uninformed (mean Sharpe 0.436, σ 0.681) both on return and on stability. Market data augmentation improves performance and dramatically narrows variance. This is the opposite of the initial single-run finding — which illustrates precisely why single-run results are insufficient for this class of comparison.
+Across four runs, the picture is unambiguous: QAOA Informed (mean Sharpe 0.712, σ 0.187) outperforms QAOA Uninformed (mean Sharpe 0.436, σ 0.681) both in return and in stability. Market data augmentation improves performance and dramatically narrows variance. The aggregate result reverses the initial single-run conclusion, demonstrating that single-run evaluations are insufficient for stochastic solver comparisons.
 
-The explanation: both informed and uninformed QAOA solve the same mean-variance objective — neither uses zero expected returns. The uninformed Q matrix receives expected_returns from the C++ rolling lookback window (the same source as Markowitz). The informed Q matrix receives expected_returns recomputed by Python's `_augment_problem_data` from the full historical prices CSV using EWMA (λ=0.94).
+The explanation is that both informed and uninformed QAOA solve the same mean-variance objective. Neither formulation uses zero expected returns. The uninformed Q matrix receives expected_returns from the C++ rolling lookback window, which is the same source used by Markowitz. The informed Q matrix receives expected_returns recomputed by Python's _augment_problem_data from the full historical price series using EWMA (λ = 0.94).
 
-The distinction is therefore not the objective function but the return estimate source. The Python augmentation computes expected_returns over the full available price history, while the C++ rolling window uses only the configured lookback period (252 days by default). These two estimates will differ in magnitude and direction when recent returns diverge from the full-history mean — which is common in a volatile regime. When the Python estimate better captures the current return environment, COBYLA finds a sharper QUBO energy landscape with stronger preference gradients, producing more consistent bitstring distributions across runs. The stability improvement in QAOA Informed (σ 0.187 vs 0.921 for Uninformed across 13 runs) is consistent with this mechanism, though isolating the contribution of return estimate quality from other factors would require a controlled experiment holding all else equal.
+The distinction is therefore not the objective function but the source of the return estimates. The Python augmentation computes expected_returns over the full available price history, while the C++ rolling window uses only the configured lookback period of 252 days. These estimates diverge in magnitude and direction when recent returns depart from the long-run historical mean, which is common during volatile market regimes. When the Python estimate better captures the active return environment, COBYLA encounters a sharper QUBO energy landscape with stronger preference gradients, producing more consistent bitstring distributions across runs.
 
-For QAMO the pattern reverses: QAMO Informed (mean Sharpe 0.061, σ 0.883) is both worse and more variable than QAMO Uninformed (mean Sharpe 0.091, σ 0.493). QAMO's mean-field equations interact with the augmented objective differently from QAOA's parameterized mixer — the mean-field approximation appears more sensitive to the augmented return vector than to the raw minimum-variance landscape. The algorithm-specificity of the augmentation effect across QAOA and QAMO is a genuine finding that warrants further investigation.
+The stability improvement observed in QAOA Informed (σ 0.187 versus 0.921 for Uninformed across 13 runs) is consistent with this mechanism. Isolating the contribution of return estimate quality from other factors, however, would require a controlled experiment holding all other variables constant.
+
+For QAMO, the pattern reverses: QAMO Informed (mean Sharpe 0.061, σ 0.883) is both worse and more variable than QAMO Uninformed (mean Sharpe 0.091, σ 0.493). QAMO's mean-field equations respond to the augmented objective differently than QAOA's parameterized mixer. The evidence suggests that the mean-field approximation is more sensitive to the augmented return vector than to the underlying minimum-variance landscape. The algorithm-specific response to augmentation across QAOA and QAMO is a substantive finding that warrants further investigation.
 
 ### Exhibit G: Variance
 
-The aggregate table below represents results across 3 benchmark runs for walk-forward solvers and multiple hardware submissions for IBM backends. Markowitz is fully deterministic — σ 0.000 is the control that validates quantum variance is real. QUBO/SA (simulated annealing) is stochastic but low-variance (σ 0.014) because the annealing schedule is fixed and the problem is small. Both serve as stability anchors against the high-variance quantum results.
+The aggregate table below represents results across 3 benchmark runs for walk-forward solvers and multiple hardware submissions for IBM backends. Markowitz is fully deterministic, with σ 0.000 serving as the control condition validating that the observed quantum variance is genuine. QUBO/SA (simulated annealing) is stochastic but low variance (σ 0.014) because the annealing schedule is fixed and the problem dimension is small. Both therefore provide stability baselines against which the higher-variance quantum solvers can be evaluated.
 
 | Solver | Runs | Mean Sharpe | ±σ | Mean Return | ±σ | Mean Turnover | ±σ | Variance |
 |---|---|---|---|---|---|---|---|---|
@@ -301,7 +307,7 @@ The aggregate table below represents results across 3 benchmark runs for walk-fo
 | QAMOO (IBM kingston) | 6 | 0.758 | 0.361 | 31.5% | 15.2% | n/a | n/a | ok |
 | QAMOO (IBM marrakesh) | 3 | 0.728 | 0.334 | 28.0% | 8.8% | n/a | n/a | ok |
 
-**Skipped rebalances:** Zero skipped rebalances across all walk-forward solvers. The constraint projection fix eliminated all exception-path rebalance skips — every scheduled rebalancing period executed with projected weights. This confirms the reported Sharpe ratios reflect the algorithm's actual output at every period, not a mix of algorithm output and stale prior weights.
+**Skipped rebalances:** Zero skipped rebalances occurred across all walk-forward solvers. The constraint projection fix eliminated all exception-path rebalance skips. Every scheduled rebalancing period executed with projected weights. This confirms that the reported Sharpe ratios reflect the algorithm's actual output at each rebalance rather than a mixture of fresh allocations and stale portfolio state.
 
 **IBM variance note:** IBM aggregate variance (Runs: 3–8) reflects variance across distinct hardware submissions on different calibration dates. All submissions produced minimum-detectable signal (1–2/1024 shots). The variance in IBM results measures the performance of randomly-derived weight vectors projected to feasibility, not optimization quality differences. IBM run counts in the aggregate are genuine distinct job submissions, not duplicates.
 
@@ -313,7 +319,7 @@ QAOA Informed σ 0.093 is the outlier. Market data augmentation, while not consi
 
 ### Exhibit H: The Frontier
 
-QAMOO's multi-objective lambda sweep produces a Pareto frontier directly comparable to the classical efficient frontier. This is a single-submission, unconstrained result — see Table 2 note in Exhibit B.
+QAMOO's multi-objective lambda sweep produces a Pareto frontier directly comparable to the classical efficient frontier. The result is derived from a single unconstrained submission. Methodological limitations are discussed in the Table 2 note in Exhibit B.
 
 | Method | Min-Vol Return | Min-Vol Volatility | Max-Sharpe Return | Max-Sharpe Volatility | Max-Sharpe Ratio |
 |---|---|---|---|---|---|
@@ -372,7 +378,7 @@ Level 3 transpilation reduced IBM circuit depths from the baseline range of 757�
 
 For Aer solvers, level 1 transpilation was retained to avoid disrupting the COBYLA parameter landscape. The marginal improvement in QAOA Uninformed mean Sharpe (+0.083) and the marginal degradation across QAMO variants confirm the primary conclusion: **the variance in Aer results is dominated by 1,024-shot undersampling of the 2²⁰ bitstring space, not by circuit structure or transpilation quality.** Changing the transpilation level while holding shots constant at 1,024 does not materially change the outcome distribution. More shots is the correct next lever.
 
-The practical constraint is cost. QAMOO with error mitigation on IBM hardware ran at approximately 4.5 minutes per round. At 3 rounds per invocation, a single `--ibm-benchmark` call consumed 13.5 minutes of Qiskit Runtime — approximately $200 in credit value and most of a monthly free tier allocation. This is the real cost of NISQ-era error mitigation at current hardware pricing, and it is a legitimate production consideration independent of whether the mitigation improves signal quality.
+The practical constraint is cost. QAMOO with error mitigation on IBM hardware required approximately 4.5 minutes per round. At 3 rounds per invocation, a single --ibm-benchmark call consumed 13.5 minutes of Qiskit Runtime, representing roughly $200 in runtime credit value and most of a monthly free-tier allocation. This is the operational cost of NISQ-era error mitigation under current hardware pricing. It remains a legitimate production concern independent of whether the mitigation materially improves signal quality.
 
 ---
 
@@ -415,17 +421,15 @@ The body of this post is written for practitioners. This appendix is for everyon
 
 ---
 
-### Finance
-
 ## Finance
 
 ### **Sharpe Ratio**
 
 A measure of return per unit of volatility. Formally:
 
-S = \frac{R_p - R_f}{\sigma_p}
+$$S = \frac{R_p - R_f}{\sigma_p}$$
 
-where (R_p) is portfolio return, (R_f) is the risk-free rate, and (\sigma_p) is portfolio volatility.
+where $R_p$ is portfolio return, $R_f$ is the risk-free rate, and $\sigma_p$ is portfolio volatility.
 
 Higher is better.
 
@@ -457,7 +461,7 @@ The classical portfolio optimization framework introduced by Harry Markowitz in 
 
 The optimizer maximizes expected return for a given level of risk using expected returns and a covariance matrix:
 
-\min_w ; w^T \Sigma w - \lambda \mu^T w
+$$\min_w \; w^T \Sigma w - \lambda \mu^T w$$
 
 subject to portfolio constraints.
 
@@ -481,7 +485,7 @@ Negative covariance means they tend to move in opposite directions.
 
 Portfolio diversification exists because covariance exists. Without covariance structure, every portfolio optimization problem degenerates into ranking assets by expected return.
 
-This benchmark uses EWMA covariance estimation with (\lambda = 0.94), which weights recent observations more heavily than older ones.
+This benchmark uses EWMA covariance estimation with $\lambda = 0.94$, which weights recent observations more heavily than older ones.
 
 ## Quantum Computing
 
@@ -489,7 +493,7 @@ This benchmark uses EWMA covariance estimation with (\lambda = 0.94), which weig
 
 An optimization formulation where every variable is binary and the objective function is quadratic:
 
-\min_x ; x^T Q x
+$$\min_x \; x^T Q x$$
 
 QUBO is the native language of many quantum optimization systems.
 
