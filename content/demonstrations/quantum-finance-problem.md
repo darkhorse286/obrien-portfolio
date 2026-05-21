@@ -241,7 +241,9 @@ All three IBM backends (ibm_fez, ibm_kingston, ibm_marrakesh) were submitted wit
 
 The optimization signal at current hardware coherence levels is a different matter. The null hypothesis for IBM hardware, namely that quantum circuits on real hardware can optimize a portfolio better than random sampling, is not refutable at these circuit depths. That is not a permanent conclusion. It is a current measurement.
 
-Across 28 unique IBM hardware submissions on ibm_fez and ibm_kingston, the top bitstring appeared in 1 or 2 out of 1024 shots in every single submission — the absolute minimum detectable signal with 1024 shots. This is statistically indistinguishable from random sampling. The circuits ran. The hardware responded. The decoherence at these circuit depths (757–1,267 gates) erased the optimization information before measurement.
+Across 28 unique IBM hardware submissions on ibm_fez and ibm_kingston, the top bitstring appeared only 1 or 2 times out of 1024 shots in every submission. That is the minimum detectable signal at a 1024-shot sampling depth. Statistically, the result is indistinguishable from random sampling.
+
+The circuits ran. The hardware responded. Decoherence at circuit depths between 757 and 1,267 gates erased the optimization signal before measurement.
 
 There is also a formulation incompatibility that would affect noise-free hardware equally. With 2-bit encoding, the minimum representable non-zero portfolio weight is 1/3 = 33.3%. The configured maximum weight constraint is 30%. These are irreconcilable without either more encoding bits (not locally simulable at n=10 assets with current hardware) or a higher constraint cap. Every IBM weight vector violates the maximum weight constraint by construction, regardless of hardware noise. The post-fix constraint projection normalizes these vectors before execution, but the underlying formulation mismatch remains.
 
