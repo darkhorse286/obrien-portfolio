@@ -307,7 +307,7 @@ The aggregate table below represents results across 3 benchmark runs for walk-fo
 | QAMOO (IBM kingston) | 6 | 0.758 | 0.361 | 31.5% | 15.2% | n/a | n/a | ok |
 | QAMOO (IBM marrakesh) | 3 | 0.728 | 0.334 | 28.0% | 8.8% | n/a | n/a | ok |
 
-**Skipped rebalances:** Zero skipped rebalances across all walk-forward solvers. The constraint projection fix eliminated all exception-path rebalance skips — every scheduled rebalancing period executed with projected weights. This confirms the reported Sharpe ratios reflect the algorithm's actual output at every period, not a mix of algorithm output and stale prior weights.
+**Skipped rebalances:** Zero skipped rebalances occurred across all walk-forward solvers. The constraint projection fix eliminated all exception-path rebalance skips. Every scheduled rebalancing period executed with projected weights. This confirms that the reported Sharpe ratios reflect the algorithm's actual output at each rebalance rather than a mixture of fresh allocations and stale portfolio state.
 
 **IBM variance note:** IBM aggregate variance (Runs: 3–8) reflects variance across distinct hardware submissions on different calibration dates. All submissions produced minimum-detectable signal (1–2/1024 shots). The variance in IBM results measures the performance of randomly-derived weight vectors projected to feasibility, not optimization quality differences. IBM run counts in the aggregate are genuine distinct job submissions, not duplicates.
 
