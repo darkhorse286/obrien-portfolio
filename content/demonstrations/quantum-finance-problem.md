@@ -266,9 +266,9 @@ There is also a formulation incompatibility that would affect noise-free hardwar
 | QAMO | ibm_marrakesh | 0.807 | 37.2% | 18.8% | 789 | 2026-04-29 |
 | QAMOO | ibm_marrakesh | 1.051 | 36.4% | 14.1% | 820 | 2026-04-29 |
 
-The performance variance across backends — QAOA ibm_fez 1.140, ibm_kingston 0.221, ibm_marrakesh 1.310 on the same algorithm and same problem — reflects backend calibration state and noise-derived weight randomness, not optimization quality differences. The infrastructure that submitted these jobs and processed their results is production-grade. The signal the hardware returned is not yet meaningful.
+The performance variance across backends reflects backend calibration state and noise-derived weight randomness rather than optimization quality differences. QAOA produced Sharpe ratios of 1.140 on ibm_fez, 0.221 on ibm_kingston, and 1.310 on ibm_marrakesh despite running the same algorithm against the same problem formulation. The infrastructure that submitted these jobs and processed their results is production-grade. The signal returned by the hardware is not yet meaningful.
 
-**The appropriate null hypothesis for IBM hardware:** at circuit depths of 757–1,267 on current NISQ hardware, the quantum optimization signal is not detectable. That is a current hardware constraint, not a statement about the algorithm. Coherence times are improving. Error mitigation techniques are maturing. The experiment should be revisited as hardware advances and circuit depths become viable — specifically when the top bitstring fraction exceeds 5% of shots consistently, and when 4-bit encoding becomes simulable locally or feasible on hardware with adequate coherence.
+**The appropriate null hypothesis for IBM hardware:** at circuit depths between 757 and 1,267 on current NISQ hardware, the quantum optimization signal is not detectable. That is a hardware limitation, not a statement about the algorithm itself. Coherence times are improving. Error mitigation techniques are maturing. The experiment should be revisited as hardware advances and viable circuit depths increase. The key threshold is whether the dominant bitstring exceeds 5% of shots consistently and whether 4-bit encoding becomes locally simulable or feasible on hardware with sufficient coherence.
 
 ### Exhibit F: Informed vs. Uninformed
 
