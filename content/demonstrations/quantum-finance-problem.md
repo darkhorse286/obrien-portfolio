@@ -421,8 +421,6 @@ The body of this post is written for practitioners. This appendix is for everyon
 
 ---
 
-### Finance
-
 ## Finance
 
 ### **Sharpe Ratio**
