@@ -106,7 +106,7 @@ This is the entire architectural point. The optimizer is replaceable. The system
 
 ### The Solver Decisions
 
-Classical baseline: OSQP (operator splitting quadratic programming, Stellato et al. 2020). This is not a toy solver. OSQP runs in aerospace control systems, robotics, and production trading infrastructure. It is the correct baseline — rigorous enough that beating it means something.
+Classical baseline: OSQP (operator splitting quadratic programming, Stellato et al. 2020). This is not a toy solver. OSQP runs in aerospace control systems, robotics, and production trading infrastructure. Any solver that outperforms it is immediately credible.
 
 Quantum reformulation: QUBO. The Markowitz mean-variance objective (minimize `wᵀΣw - λμᵀw` subject to `Σwᵢ = 1`, `wᵢ ≥ 0`) maps to QUBO by discretizing weights into binary variables and encoding constraints as penalty terms. This benchmark uses 2-bit encoding per asset, meaning each weight is representable as a multiple of 1/3 (0, 33.3%, 66.7%, 100%). The same QUBO matrix feeds both the classical simulated annealing solver and every quantum hardware interface. Identical problem formulation, different solver path.
 
@@ -423,9 +423,9 @@ The body of this post is written for practitioners. This appendix is for everyon
 
 A measure of return per unit of volatility. Formally:
 
-S = \frac{R_p - R_f}{\sigma_p}
+$$S = \frac{R_p - R_f}{\sigma_p}$$
 
-where (R_p) is portfolio return, (R_f) is the risk-free rate, and (\sigma_p) is portfolio volatility.
+where $R_p$ is portfolio return, $R_f$ is the risk-free rate, and $\sigma_p$ is portfolio volatility.
 
 Higher is better.
 
@@ -457,7 +457,7 @@ The classical portfolio optimization framework introduced by Harry Markowitz in 
 
 The optimizer maximizes expected return for a given level of risk using expected returns and a covariance matrix:
 
-\min_w ; w^T \Sigma w - \lambda \mu^T w
+$$\min_w \; w^T \Sigma w - \lambda \mu^T w$$
 
 subject to portfolio constraints.
 
@@ -481,7 +481,7 @@ Negative covariance means they tend to move in opposite directions.
 
 Portfolio diversification exists because covariance exists. Without covariance structure, every portfolio optimization problem degenerates into ranking assets by expected return.
 
-This benchmark uses EWMA covariance estimation with (\lambda = 0.94), which weights recent observations more heavily than older ones.
+This benchmark uses EWMA covariance estimation with $\lambda = 0.94$, which weights recent observations more heavily than older ones.
 
 ## Quantum Computing
 
@@ -489,7 +489,7 @@ This benchmark uses EWMA covariance estimation with (\lambda = 0.94), which weig
 
 An optimization formulation where every variable is binary and the objective function is quadratic:
 
-\min_x ; x^T Q x
+$$\min_x \; x^T Q x$$
 
 QUBO is the native language of many quantum optimization systems.
 
