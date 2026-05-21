@@ -274,7 +274,7 @@ The performance variance across backends reflects backend calibration state and 
 
 QAOA Informed adds EWMA expected returns and covariance to the problem file before circuit submission. QAOA Uninformed receives only the raw QUBO Q matrix.
 
-Across four runs, the picture is unambiguous: QAOA Informed (mean Sharpe 0.712, σ 0.187) outperforms QAOA Uninformed (mean Sharpe 0.436, σ 0.681) both on return and on stability. Market data augmentation improves performance and dramatically narrows variance. This is the opposite of the initial single-run finding — which illustrates precisely why single-run results are insufficient for this class of comparison.
+Across four runs, the picture is unambiguous: QAOA Informed (mean Sharpe 0.712, σ 0.187) outperforms QAOA Uninformed (mean Sharpe 0.436, σ 0.681) both in return and in stability. Market data augmentation improves performance and dramatically narrows variance. The aggregate result reverses the initial single-run conclusion, demonstrating that single-run evaluations are insufficient for stochastic solver comparisons.
 
 The explanation: both informed and uninformed QAOA solve the same mean-variance objective — neither uses zero expected returns. The uninformed Q matrix receives expected_returns from the C++ rolling lookback window (the same source as Markowitz). The informed Q matrix receives expected_returns recomputed by Python's `_augment_problem_data` from the full historical prices CSV using EWMA (λ=0.94).
 
