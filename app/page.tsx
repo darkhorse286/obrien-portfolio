@@ -14,30 +14,30 @@ export default async function Home() {
   return (
     <main className="min-h-[85vh]">
       {/* Hero Section */}
-      <div className="bg-gradient-to-b from-green-50 via-white to-gray-50 py-20">
+      <div className="bg-gradient-to-b from-green-50 via-white to-gray-50 dark:from-gray-950 dark:via-gray-900 dark:to-gray-900 py-20">
         <div className="max-w-5xl mx-auto px-6">
           <div className="mb-6">
-            <span className="inline-block text-sm font-semibold text-amber-700 bg-amber-100 px-4 py-2 rounded-full mb-4">
+            <span className="inline-block text-sm font-semibold text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/30 px-4 py-2 rounded-full mb-4">
               EST. 1986 — 40 YEARS OF BUILDING THINGS PROPERLY
             </span>
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-bold text-gray-900 mb-6">
+          <h1 className="text-5xl md:text-7xl font-bold text-gray-900 dark:text-gray-50 mb-6">
             O'Brien & Son
           </h1>
           
-          <p className="text-2xl md:text-3xl text-gray-700 mb-8 font-light leading-relaxed max-w-3xl">
+          <p className="text-2xl md:text-3xl text-gray-700 dark:text-gray-300 mb-8 font-light leading-relaxed max-w-3xl">
             Where quality craftsmanship meets software architecture. A workshop for building 
             production systems with the same attention to detail that built our reputation 
             in exterior remodeling.
           </p>
 
           <div className="max-w-3xl mb-12">
-            <p className="text-lg text-gray-600 leading-relaxed">
-              In 1986, my mother founded O'Brien & Son to build quality into every project. 
-              For four decades, that meant windows, siding, gutters, shutters, and lasting craftsmanship. Today, 
-              the name continues, but the materials have changed. <strong className="text-gray-900">This 
-              workshop is where backend architecture, security patterns, and production systems are 
+            <p className="text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
+              In 1986, my mother founded O'Brien & Son to build quality into every project.
+              For four decades, that meant windows, siding, gutters, shutters, and lasting craftsmanship. Today,
+              the name continues, but the materials have changed. <strong className="text-gray-900 dark:text-gray-100">This
+              workshop is where backend architecture, security patterns, and production systems are
               designed, built, and refined.</strong>
             </p>
           </div>
@@ -45,7 +45,7 @@ export default async function Home() {
           <div className="flex gap-4 flex-wrap">
             <Link 
               href="/demonstrations" 
-              className="bg-gray-900 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-700 transition shadow-lg inline-flex items-center gap-2"
+              className="bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-700 dark:hover:bg-gray-200 transition shadow-lg inline-flex items-center gap-2"
             >
               View the Work
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -54,7 +54,7 @@ export default async function Home() {
             </Link>
             <Link 
               href="/about" 
-              className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-lg text-lg font-semibold hover:border-gray-900 hover:text-gray-900 transition"
+              className="border-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 px-8 py-4 rounded-lg text-lg font-semibold hover:border-gray-900 dark:hover:border-gray-300 hover:text-gray-900 dark:hover:text-gray-100 transition"
             >
               The Story
             </Link>
@@ -63,47 +63,47 @@ export default async function Home() {
       </div>
 
       {/* Workshop Principles */}
-      <div className="bg-white py-16 border-y border-gray-200">
+      <div className="bg-white dark:bg-gray-900 py-16 border-y border-gray-200 dark:border-gray-700">
         <div className="max-w-5xl mx-auto px-6">
-          <h2 className="text-3xl font-bold mb-12 text-center text-gray-900">
+          <h2 className="text-3xl font-bold mb-12 text-center text-gray-900 dark:text-gray-50">
             Workshop Philosophy
           </h2>
 
           <div className="grid md:grid-cols-3 gap-8">
             <div className="text-center">
-              <div className="w-16 h-16 bg-gray-900 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-16 h-16 bg-gray-900 dark:bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-white dark:text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold mb-3 text-gray-900">Security as Architecture</h3>
-              <p className="text-gray-600">
+              <h3 className="text-xl font-bold mb-3 text-gray-900 dark:text-gray-100">Security as Architecture</h3>
+              <p className="text-gray-600 dark:text-gray-400">
                 Authentication, authorization, and data protection are design decisions, not afterthoughts. 
                 Built in from the foundation.
               </p>
             </div>
 
             <div className="text-center">
-              <div className="w-16 h-16 bg-gray-900 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-16 h-16 bg-gray-900 dark:bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-white dark:text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold mb-3 text-gray-900">Backend-First Development</h3>
-              <p className="text-gray-600">
+              <h3 className="text-xl font-bold mb-3 text-gray-900 dark:text-gray-100">Backend-First Development</h3>
+              <p className="text-gray-600 dark:text-gray-400">
                 Business logic lives in services, not scattered across UI components. Complete APIs 
                 before frontend work begins.
               </p>
             </div>
 
             <div className="text-center">
-              <div className="w-16 h-16 bg-gray-900 rounded-lg flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-16 h-16 bg-gray-900 dark:bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-white dark:text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold mb-3 text-gray-900">Time for Quality</h3>
-              <p className="text-gray-600">
+              <h3 className="text-xl font-bold mb-3 text-gray-900 dark:text-gray-100">Time for Quality</h3>
+              <p className="text-gray-600 dark:text-gray-400">
                 Every hour in design saves five in refactoring. Proper upfront work prevents 
                 architectural debt that cripples projects later.
               </p>
@@ -115,12 +115,12 @@ export default async function Home() {
       {/* Featured Work */}
       <div className="max-w-5xl mx-auto px-6 py-16">
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-3xl font-bold text-gray-900">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-50">
             Featured Work
           </h2>
           <Link 
             href="/demonstrations"
-            className="text-gray-600 hover:text-gray-900 font-semibold inline-flex items-center gap-2"
+            className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 font-semibold inline-flex items-center gap-2"
           >
             View All
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -133,15 +133,15 @@ export default async function Home() {
           {featuredDemos.map((demo) => (
             <article
               key={demo.slug}
-              className="border border-gray-200 rounded-lg p-8 hover:border-gray-400 transition"
+              className="border border-gray-200 dark:border-gray-700 rounded-lg p-8 hover:border-gray-400 dark:hover:border-gray-500 transition"
             >
-              <h3 className="text-2xl font-bold mb-2">{demo.metadata.title}</h3>
+              <h3 className="text-2xl font-bold mb-2 text-gray-900 dark:text-gray-100">{demo.metadata.title}</h3>
 
               {demo.metadata.description && (
-                <p className="text-gray-600 mb-4">{demo.metadata.description}</p>
+                <p className="text-gray-600 dark:text-gray-400 mb-4">{demo.metadata.description}</p>
               )}
 
-              <div className="flex gap-4 text-sm text-gray-500 mb-6">
+              <div className="flex gap-4 text-sm text-gray-500 dark:text-gray-400 mb-6">
                 {demo.metadata.date && <span>📅 {demo.metadata.date}</span>}
                 {demo.metadata.tech && <span>⚙️ {demo.metadata.tech}</span>}
               </div>
@@ -149,7 +149,7 @@ export default async function Home() {
               <div className="flex gap-4">
                 <Link
                   href={`/demonstrations/${demo.slug}`}
-                  className="bg-gray-900 text-white px-6 py-2 rounded hover:bg-gray-700 transition"
+                  className="bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 px-6 py-2 rounded hover:bg-gray-700 dark:hover:bg-gray-200 transition"
                 >
                   Read the Proof →
                 </Link>
@@ -159,7 +159,7 @@ export default async function Home() {
                     href={demo.metadata.demo}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="border border-gray-900 text-gray-900 px-6 py-2 rounded hover:bg-gray-50 transition"
+                    className="border border-gray-900 dark:border-gray-400 text-gray-900 dark:text-gray-300 px-6 py-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition"
                   >
                     View Live Demo ↗
                   </a>
@@ -170,14 +170,14 @@ export default async function Home() {
         </div>
 
         {/* In Progress Note */}
-        <div className="mt-8 p-6 bg-amber-50 border-l-4 border-amber-400 rounded-r-lg">
+        <div className="mt-8 p-6 bg-amber-50 dark:bg-amber-900/20 border-l-4 border-amber-400 dark:border-amber-600 rounded-r-lg">
           <div className="flex items-start gap-3">
-            <svg className="w-6 h-6 text-amber-600 flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-6 h-6 text-amber-600 dark:text-amber-500 flex-shrink-0 mt-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <div>
-              <p className="font-semibold text-amber-900 mb-1">Active Workshop</p>
-              <p className="text-amber-800">
+              <p className="font-semibold text-amber-900 dark:text-amber-300 mb-1">Active Workshop</p>
+              <p className="text-amber-800 dark:text-amber-400">
                 This site is itself under active development. New demonstrations, refinements to existing 
                 work, and additional architectural examples are added as they reach production quality.
               </p>
@@ -200,7 +200,7 @@ export default async function Home() {
           <div className="flex gap-4 justify-center flex-wrap">
             <Link 
               href="/about"
-              className="bg-white text-gray-900 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition"
+              className="bg-white dark:bg-gray-200 text-gray-900 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 dark:hover:bg-gray-300 transition"
             >
               Read the Full Story
             </Link>
