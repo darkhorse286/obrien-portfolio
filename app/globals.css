@@ -3,6 +3,21 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  /* Markdown content color tokens */
+  --md-text:         #374151;
+  --md-heading:      #111827;
+  --md-heading-sub:  #1f2937;
+  --md-muted:        #6b7280;
+  --md-link:         #2563eb;
+  --md-link-hover:   #1e40af;
+  --md-border:       #d1d5db;
+  --md-border-light: #e5e7eb;
+  --md-code-bg:      #f3f4f6;
+  --md-code-text:    #1f2937;
+  --md-pre-bg:       #1f2937;
+  --md-pre-text:     #f3f4f6;
+  --md-table-head:   #f9fafb;
 }
 
 @theme inline {
@@ -16,6 +31,21 @@
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+
+    /* Markdown content color tokens — dark overrides */
+    --md-text:         #d1d5db;
+    --md-heading:      #f9fafb;
+    --md-heading-sub:  #e5e7eb;
+    --md-muted:        #9ca3af;
+    --md-link:         #60a5fa;
+    --md-link-hover:   #93c5fd;
+    --md-border:       #4b5563;
+    --md-border-light: #374151;
+    --md-code-bg:      #1f2937;
+    --md-code-text:    #e5e7eb;
+    --md-pre-bg:       #111827;
+    --md-pre-text:     #f3f4f6;
+    --md-table-head:   #1f2937;
   }
 }
 
@@ -31,7 +61,7 @@ body {
 
 .markdown-content {
   max-width: none;
-  color: #374151;
+  color: var(--md-text);
   line-height: 1.75;
 }
 
@@ -39,7 +69,7 @@ body {
   font-size: 2.25rem;
   font-weight: 700;
   margin-bottom: 2rem;
-  color: #111827;
+  color: var(--md-heading);
 }
 
 .markdown-content h2 {
@@ -47,29 +77,29 @@ body {
   font-weight: 700;
   margin-top: 3rem;
   margin-bottom: 1.5rem;
-  color: #111827;
+  color: var(--md-heading);
 }
 
 .markdown-content p {
   margin-bottom: 1.5rem;
-  color: #374151;
+  color: var(--md-text);
   line-height: 1.75;
 }
 
 .markdown-content strong {
   font-weight: 600;
-  color: #111827;
+  color: var(--md-heading);
 }
 
 .markdown-content a {
-  color: #2563eb;
+  color: var(--md-link);
   text-decoration: underline;
   text-underline-offset: 2px;
   text-decoration-thickness: 2px;
 }
 
 .markdown-content a:hover {
-  color: #1e40af;
+  color: var(--md-link-hover);
 }
 
 .markdown-content ul {
@@ -86,17 +116,17 @@ body {
 
 .markdown-content li {
   margin-bottom: 0.5rem;
-  color: #374151;
+  color: var(--md-text);
   line-height: 1.75;
 }
 
 .markdown-content hr {
   margin: 3rem 0;
-  border-color: #d1d5db;
+  border-color: var(--md-border);
 }
 
 .markdown-content em {
-  color: #6b7280;
+  color: var(--md-muted);
   font-style: italic;
 }
 
@@ -106,8 +136,8 @@ body {
   font-weight: 700;
   margin-top: 2.5rem;
   margin-bottom: 1rem;
-  color: #111827;
-  border-bottom: 2px solid #e5e7eb;
+  color: var(--md-heading);
+  border-bottom: 2px solid var(--md-border-light);
   padding-bottom: 0.5rem;
 }
 
@@ -116,7 +146,7 @@ body {
   font-weight: 600;
   margin-top: 2rem;
   margin-bottom: 0.75rem;
-  color: #1f2937;
+  color: var(--md-heading-sub);
 }
 
 .markdown-content h5 {
@@ -124,7 +154,7 @@ body {
   font-weight: 600;
   margin-top: 1.5rem;
   margin-bottom: 0.5rem;
-  color: #374151;
+  color: var(--md-text);
 }
 
 .markdown-content ul ul {
@@ -141,17 +171,17 @@ body {
 }
 
 .markdown-content code {
-  background-color: #f3f4f6;
+  background-color: var(--md-code-bg);
   padding: 0.125rem 0.375rem;
   border-radius: 0.25rem;
   font-size: 0.875rem;
   font-family: 'Courier New', monospace;
-  color: #1f2937;
+  color: var(--md-code-text);
 }
 
 .markdown-content pre {
-  background-color: #1f2937;
-  color: #f3f4f6;
+  background-color: var(--md-pre-bg);
+  color: var(--md-pre-text);
   padding: 1rem;
   border-radius: 0.5rem;
   overflow-x: auto;
@@ -166,10 +196,10 @@ body {
 }
 
 .markdown-content blockquote {
-  border-left: 4px solid #d1d5db;
+  border-left: 4px solid var(--md-border);
   padding-left: 1rem;
   margin: 1.5rem 0;
-  color: #6b7280;
+  color: var(--md-muted);
   font-style: italic;
 }
 
@@ -188,30 +218,30 @@ body {
 }
 
 .markdown-content thead {
-  background-color: #f9fafb;
+  background-color: var(--md-table-head);
 }
 
 .markdown-content th {
   padding: 0.75rem 1.25rem;
   text-align: left;
   font-weight: 600;
-  color: #111827;
-  border-bottom: 2px solid #d1d5db;
+  color: var(--md-heading);
+  border-bottom: 2px solid var(--md-border);
 }
 
 .markdown-content td {
   padding: 0.625rem 1.25rem;
-  color: #374151;
-  border-bottom: 1px solid #e5e7eb;
+  color: var(--md-text);
+  border-bottom: 1px solid var(--md-border-light);
   vertical-align: top;
 }
 
 .markdown-content tbody tr:nth-child(even) {
-  background-color: #f9fafb;
+  background-color: var(--md-table-head);
 }
 
 .markdown-content tbody tr:hover {
-  background-color: #f3f4f6;
+  background-color: var(--md-code-bg);
 }
 
 .markdown-content tbody tr:last-child td {
