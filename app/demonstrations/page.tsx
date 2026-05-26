@@ -16,9 +16,9 @@ export default function Demonstrations(){
     const demonstrations = getAllDemonstrations();
     return(
         <main className="max-w-4xl mx-auto px-6 py-12">
-      <h1 className="text-4xl font-bold mb-4">Demonstrations</h1>
+      <h1 className="text-4xl font-bold mb-4 text-gray-900 dark:text-gray-50">Demonstrations</h1>
       
-      <p className="text-xl text-gray-600 mb-12">
+      <p className="text-xl text-gray-600 dark:text-gray-400 mb-12">
         Production-quality engineering applied to interesting problems. Each demonstration 
         is written in QED (mathematical proof) format to show systematic thinking and 
         architectural discipline.
@@ -28,19 +28,19 @@ export default function Demonstrations(){
         {demonstrations.map((demo) => (
           <article 
             key={demo.slug} 
-            className="border border-gray-200 rounded-lg p-8 hover:border-gray-400 transition"
+            className="border border-gray-200 dark:border-gray-700 rounded-lg p-8 hover:border-gray-400 dark:hover:border-gray-500 transition"
           >
-            <h2 className="text-2xl font-bold mb-2">
+            <h2 className="text-2xl font-bold mb-2 text-gray-900 dark:text-gray-100">
               {demo.metadata.title}
             </h2>
             
             {demo.metadata.description && (
-              <p className="text-gray-600 mb-4">
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
                 {demo.metadata.description}
               </p>
             )}
 
-            <div className="flex gap-4 text-sm text-gray-500 mb-6">
+            <div className="flex gap-4 text-sm text-gray-500 dark:text-gray-400 mb-6">
               {demo.metadata.date && <span>📅 {demo.metadata.date}</span>}
               {demo.metadata.tech && <span>⚙️ {demo.metadata.tech}</span>}
             </div>
@@ -48,7 +48,7 @@ export default function Demonstrations(){
             <div className="flex gap-4">
               <Link 
                 href={`/demonstrations/${demo.slug}`}
-                className="bg-gray-900 text-white px-6 py-2 rounded hover:bg-gray-700 transition"
+                className="bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 px-6 py-2 rounded hover:bg-gray-700 dark:hover:bg-gray-200 transition"
               >
                 Read the Proof →
               </Link>
@@ -58,7 +58,7 @@ export default function Demonstrations(){
                   href={demo.metadata.demo}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="border border-gray-900 text-gray-900 px-6 py-2 rounded hover:bg-gray-50 transition"
+                  className="border border-gray-900 dark:border-gray-400 text-gray-900 dark:text-gray-300 px-6 py-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition"
                 >
                   View Live Demo ↗
                 </a>
