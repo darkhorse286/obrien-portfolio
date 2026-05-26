@@ -47,7 +47,7 @@ export default async function DemonstrationPage({
       {/* Back button */}
       <Link 
         href="/demonstrations"
-        className="text-blue-600 hover:text-blue-800 mb-6 inline-block"
+        className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 mb-6 inline-block"
       >
         ← Back to Demonstrations
       </Link>
@@ -60,13 +60,13 @@ export default async function DemonstrationPage({
       
       {/* Live demo link if available */}
       {metadata.demo && (
-        <div className="mt-12 p-6 bg-gray-50 rounded-lg border border-gray-200">
-          <p className="text-sm text-gray-600 mb-2">Live Demonstration:</p>
-          <a 
+        <div className="mt-12 p-6 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Live Demonstration:</p>
+          <a
             href={metadata.demo}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-600 hover:text-blue-800 font-semibold text-lg"
+            className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-semibold text-lg"
           >
             View Project ARES Demo ↗
           </a>

@@ -16,7 +16,7 @@ export default async function About() {
   
   return (
     <main className="max-w-4xl mx-auto px-6 py-12">
-      <h1 className="text-4xl font-bold mb-8">About</h1>
+      <h1 className="text-4xl font-bold mb-8 text-gray-900 dark:text-gray-50">About</h1>
       <article 
         className="markdown-content text-lg"
         dangerouslySetInnerHTML={{ __html: contentHtml }}
