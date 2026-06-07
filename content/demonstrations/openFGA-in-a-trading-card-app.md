@@ -1,10 +1,9 @@
 ---
-
 title: "How do you know your authorization model is correct?"
 date: "June 2026"
 tech: ".NET 10, OpenFGA v1.15.1, xUnit, Testcontainers"
 description: "An adversarial testing pattern for relationship-based authorization models using real OpenFGA infrastructure and isolated stores."
-------------------------------------------------------------------------------------------------------------------------------------------------
+---
 
 # How do you know your authorization model is correct?
 
@@ -26,374 +25,77 @@ The engineering question is:
 
 This project treats that question as a falsifiable systems claim.
 
----
-
 ## Given Constraints
 
 Let:
 
-* **M** = an authorization model expressed in the OpenFGA DSL
-* **d(u,r,o,ctx)** = the authorization decision for user *u*, relation *r*, object *o*, and evaluation context *ctx*
-* **C** = the set of conditional relationships defined in *M*
+- **M** = an authorization model expressed in the OpenFGA DSL
+- **d(u, r, o, ctx)** = the authorization decision for user *u*, relation *r*, object *o*, and evaluation context *ctx*
+- **C** = the set of conditional relationships defined in *M*
 
-For any condition:
+For any c ∈ C, the authorization decision depends upon runtime evaluation performed by the engine, not by the caller.
 
-```
-c ∈ C
-```
+Consider two testing strategies. **T_mock** replaces `CheckAsync` and `ListObjectsAsync` with test doubles configured by the test author. **T_real** executes those same calls against a live OpenFGA instance loaded with M.
 
-the authorization decision depends upon runtime evaluation performed by the engine.
+For unconditional tuples, T_mock(d) = T_real(d), provided the mock was configured correctly. For conditional tuples, T_mock(d) is whatever the test author programmed. T_real(d) is whatever the engine computes after evaluating the condition against the supplied context.
 
-Consider two testing strategies.
+The trading card authorization model contains a conditional relationship, `not_expired`, whose evaluation depends on `ctx.current_time`. A mocked authorization engine does not evaluate this condition. It returns whatever the test author expected the condition would evaluate to.
 
-```
-Tmock
-```
+Therefore: a test suite achieving complete application-layer coverage does not establish that the authorization model behaves correctly. It establishes only that the application calls the authorization layer correctly.
 
-replaces `CheckAsync` and `ListObjectsAsync` with test doubles configured by the test author.
+**H₀:** Coverage over the application integration layer constitutes sufficient evidence of authorization model correctness, because the authorization engine is a black box whose behavior is fully specified by its interface contract, and a mocked authorization engine is evidentially equivalent to the production engine.
 
-```
-Treal
-```
+A falsifiable systems claim. This project refutes H₀. The evidence follows.
 
-executes those same operations against a live OpenFGA instance loaded with M.
+## Methodology
 
-For unconditional tuples:
+### Background
 
-```
-Tmock(d) = Treal(d)
-```
+Relationship-Based Access Control derives authorization decisions from traversable paths in a relationship graph rather than from a static permission matrix. Traditional RBAC asks whether a permission entry exists. ReBAC asks whether a valid path currently exists between this user and this resource. The graph changes continuously as tuples are written and removed. Conditional tuples add another dimension: whether a relationship exists depends upon engine evaluation at query time. This article concerns testing methodology for that model, not the model itself.
 
-provided the mock was configured correctly.
-
-For conditional tuples:
-
-```
-Tmock(d)
-```
-
-is whatever the test author programmed.
-
-```
-Treal(d)
-```
-
-is whatever the engine computes after evaluating the condition against the supplied context.
-
-The trading card authorization model contains a conditional relationship:
-
-```
-not_expired
-```
-
-whose evaluation depends upon:
-
-```
-ctx.current_time
-```
-
-A mocked authorization engine does not evaluate this condition. It returns whatever the test author expected the condition would evaluate to.
-Therefore:
-
-A test suite achieving complete application-layer coverage does not establish that the authorization model behaves correctly.
-
-It establishes only that the application calls the authorization layer correctly.
-
----
-
-### Null Hypothesis
-
-**H₀:**
-
-Coverage over the application integration layer constitutes sufficient evidence of authorization model correctness because the authorization engine is a black box whose behavior is fully specified by its interface contract.
-
-Equivalently:
-
-A mocked authorization engine is evidentially equivalent to the production engine. A falsifiable systems claim.
-
-This project refutes H₀.
-
-The evidence follows.
-
----
-
-# Methodology
-
-## Background
-
-Relationship-Based Access Control derives authorization decisions from traversable paths in a relationship graph.
-
-Traditional RBAC asks:
-
-> Does this permission entry exist?
-
-ReBAC asks:
-
-> Does a valid path currently exist between this user and this resource?
-
-The graph changes continuously as tuples are written and removed. Conditional tuples add another dimension: whether a relationship exists depends upon engine evaluation at query time. This article concerns testing methodology for that model, not the model itself.
-
----
-
-## Decision 1: Authorization Engine Infrastructure
+### Decision 1: Authorization Engine Infrastructure
 
 Three approaches were evaluated.
 
-### Shared Development Instance
+**Shared Development Instance.** The advantages are a real engine, real data, and minimal local setup. The fatal weakness is shared state. A tuple written by one test persists until cleanup succeeds. A failing cleanup operation silently contaminates future runs. Test validity depends upon execution history. The environment itself becomes part of the test.
 
-Advantages:
+**Mocked Authorization Engine.** The advantages are speed, no infrastructure dependency, and full application-layer coverage. The fatal weakness is that the mock evaluates nothing. Conditional relationships become hardcoded expectations. A missing context parameter, a malformed condition, or an unexpected engine evaluation are all unobservable. The evidence concerns calls, not decisions.
 
-* Real engine
-* Real data
-* Minimal local setup
+**Real Engine via Testcontainers.** Chosen. A pinned production-equivalent image (`openfga/openfga:v1.15.1`) starts automatically before test execution. Each run begins from an empty state. Versioning is explicit. Infrastructure is reproducible. Startup cost is bounded. The evidence concerns the behavior of the authorization engine itself.
 
-Fatal weakness:
-
-Shared state. A tuple written by one test persists until cleanup succeeds. A failing cleanup operation silently contaminates future runs. Test validity depends upon execution history.
-
-The environment itself becomes part of the test.
-
----
-
-### Mocked Authorization Engine
-
-Advantages:
-
-* Fast
-* No infrastructure
-* Full application-layer coverage
-
-Fatal weakness:
-
-The mock evaluates nothing.
-
-Conditional relationships become hardcoded expectations.
-
-A missing context parameter.
-
-A malformed condition.
-
-An unexpected engine evaluation.
-
-None are observable.
-
-The evidence concerns calls.
-
-Not decisions.
-
----
-
-### Real Engine via Testcontainers
-
-Chosen approach.
-
-A pinned production-equivalent OpenFGA image:
-
-```
-openfga/openfga:v1.15.1
-```
-
-starts automatically before test execution.
-
-Each run begins from an empty state.
-
-Versioning is explicit.
-
-Infrastructure is reproducible.
-
-Startup cost is bounded.
-
-The evidence concerns the behavior of the authorization engine itself.
-
----
-
-## Decision 2: Store Isolation
+### Decision 2: Store Isolation
 
 Two approaches were evaluated.
 
-### Shared Store + Cleanup
+**Shared Store with Cleanup.** Simple. Fragile. Cleanup is behavioral rather than structural. A cleanup failure leaves residual state. Parallel execution introduces races. A scenario may pass because another scenario previously created the required tuple. The failure mode is invisible in test output.
 
-Simple.
+**Per-Class Store Isolation.** Chosen. `FgaTestBase` creates a dedicated store for each test class at initialization and deletes it at teardown. Tests inside the class share only the state they intentionally create. Classes share nothing. Isolation is structural, not procedural. A scenario cannot inherit state it did not write.
 
-Fragile.
-
-Cleanup is behavioral.
-
-A cleanup failure leaves residual state.
-
-Parallel execution introduces races.
-
-A scenario may pass because another scenario previously created the required tuple.
-
-The failure mode is invisible.
-
----
-
-### Per-Class Store Isolation
-
-Chosen approach.
-
-`FgaTestBase` creates a dedicated store for each test class.
-
-The authorization model is loaded into that store.
-
-Tests inside the class share only the state they intentionally create.
-
-Classes share nothing.
-
-Isolation is structural.
-
-Not procedural.
-
-A scenario cannot inherit state it did not write.
-
----
-
-## Decision 3: Tuple Generation
+### Decision 3: Tuple Generation
 
 Two setup patterns were evaluated.
 
-### Inline Tuple Writes
+**Inline Tuple Writes.** Readable and self-contained, but at an incorrect abstraction boundary. Production writes tuples through domain event handlers. Inline setup bypasses those handlers entirely. A tuple writer may be wrong while every test still passes.
 
-Readable.
+**Event-Driven Setup.** Chosen. Production routes domain events through `TupleWriterDispatcher` to `ITupleWriterHandler` implementations. Test setup mirrors that pipeline. Tuple structure is derived from production behavior. A broken tuple writer breaks the adversarial scenario. The authorization graph remains auditable.
 
-Self-contained.
+See the Appendix for the event-to-tuple pipeline diagram.
 
-Incorrect abstraction boundary.
+### Decision 4: Test Design
 
-Production writes tuples through domain event handlers.
+Coverage targets and named adversarial scenarios were evaluated.
 
-Inline setup bypasses those handlers entirely.
+**Coverage-Oriented Testing.** Coverage measures execution, not correctness. A mocked authorization call and a real authorization call produce identical coverage numbers. The metrics are indistinguishable. The evidence is not.
 
-A tuple writer may be wrong while every test still passes.
+**Named Adversarial Scenarios.** Chosen. Each test represents a single authorization property. The scenario name is the claim. The assertion is the evidence. A failing scenario names the broken property directly. The suite becomes a collection of proof obligations rather than a collection of executed lines.
 
----
+## Evidence
 
-### Event-Driven Setup
+### Exhibit A: The Adversarial Suite Identified a Latent Integration Gap
 
-Chosen approach.
+**Claim under test:** The adversarial suite will detect authorization gaps that exist at the model level but have no active application expression.
 
-Production routes events through:
-
-```
-TupleWriterDispatcher
-        ↓
-ITupleWriterHandler
-        ↓
-OpenFGA
-```
-
-Test setup mirrors that pipeline.
-
-Tuple structure is derived from production behavior.
-
-A broken tuple writer breaks the adversarial scenario.
-
-The authorization graph remains auditable.
-
----
-
-## Decision 4: Test Design
-
-Coverage metrics and adversarial scenarios were evaluated.
-
-### Coverage-Oriented Testing
-
-Coverage measures execution.
-
-Coverage does not measure correctness.
-
-A mocked authorization call and a real authorization call produce identical coverage numbers.
-
-The metrics are indistinguishable.
-
-The evidence is not.
-
----
-
-### Named Adversarial Scenarios
-
-Chosen approach.
-
-Each test represents a single authorization property.
-
-The scenario name is the claim.
-
-The assertion is the evidence.
-
-A failing scenario names the broken property directly.
-
-The suite becomes a collection of proof obligations rather than a collection of executed lines.
-
----
-
-# Evidence
-
-## Exhibit A: Conditional Relationships Require Engine Evaluation
-
-The trading card model contains a conditional relationship:
-
-```
-not_expired
-```
-
-The condition evaluates against caller-supplied context.
-
-The T1 suite writes a delegation valid for sixty minutes.
-
-```
-WriteTuple(
-    user:guardian-1,
-    delegate,
-    trade:t100,
-    condition:not_expired {
-        expiration:T+60min
-    }
-)
-```
-
-The tuple is exercised across both OpenFGA query boundaries.
-
-| Query       | Time | Expected | Result  |
-| ----------- | ---- | -------- | ------- |
-| Check       | T+30 | Allowed  | Allowed |
-| Check       | T+90 | Denied   | Denied  |
-| ListObjects | T+30 | Present  | Present |
-| ListObjects | T+90 | Absent   | Absent  |
-
-The expiration timestamp exists only inside the tuple.
-
-The application does not compare timestamps.
-
-The caller supplies `current_time`.
-
-The engine performs the evaluation.
-
-The adversarial suite therefore validates the authorization model itself rather than merely validating application integration.
-
-**Caveat**
-
-Results characterize the OpenFGA in-memory datastore.
-
-Postgres-backed behavior has not been evaluated.
-
----
-
-## Exhibit B: The Adversarial Suite Identified a Latent Integration Gap
-
-During development of:
-
-```
-Guardian_CannotSee_ExpiredDelegations_Via_ListObjects
-```
-
-the expected denial did not occur.
-
-Inspection of `OpenFgaAuthorizationService` revealed an asymmetry.
-
-`CheckAsync` supplied evaluation context.
-
-`ListObjectsAsync` did not.
+**Data:** During development of `Guardian_CannotSee_ExpiredDelegations_Via_ListObjects`, the expected denial did not occur. Inspection of `OpenFgaAuthorizationService` revealed an asymmetry. `CheckAsync` supplied evaluation context. `ListObjectsAsync` did not.
 
 Before remediation:
 
@@ -423,197 +125,254 @@ var response = await _client.ListObjectsAsync(
     });
 ```
 
-The omission was invisible to application-layer coverage.
+The omission was invisible to application-layer coverage. Both implementations exercised identical code paths. Only the real engine attempted to evaluate the condition.
 
-Both implementations exercised identical code paths.
+**Reading:** The adversarial suite identified an authorization integration defect before any production feature depended upon the affected path. A mocked authorization engine configured with expected return values would have reported complete success.
 
-Only the real engine attempted to evaluate the condition.
+**Caveats:** The claim that this gap would have produced a production incident is not supported. The delegation path to roster visibility was real at the model level and latent at the application layer. The suite found a latent gap, not an active defect.
 
-The significance of the finding is architectural.
+### Exhibit B: Conditional Relationships Require Engine Evaluation
 
-The adversarial suite identified an authorization integration defect before any production feature depended upon the affected path.
+**Claim under test:** OpenFGA correctly evaluates `not_expired` at both `Check` and `ListObjects` query boundaries when `current_time` is present in the request context. The evaluation is performed by the engine. The application does not compare timestamps.
 
-A mocked authorization engine configured with expected return values would have reported complete success.
-
----
-
-## Exhibit C: Snapshot Semantics Are Preserved
-
-The authorization model intentionally captures supervision relationships at trade proposal time.
-
-Sequence:
+**Data:** The T1 suite writes a delegation valid for sixty minutes and exercises it across both query boundaries.
 
 ```
-T=0
-Delegation granted.
-
-T=1
-Trade proposed.
-Supervisor tuple written.
-
-T=2
-Delegation expires.
-
-T=180
-Supervisor queries trade.
+WriteTuple(
+    user:guardian-1,
+    delegate,
+    trade:t100,
+    condition: not_expired { expiration: T+60min }
+)
 ```
 
-Expected:
+| Query       | Time | Expected | Result  |
+| ----------- | ---- | -------- | ------- |
+| Check       | T+30 | Allowed  | Allowed |
+| Check       | T+90 | Denied   | Denied  |
+| ListObjects | T+30 | Present  | Present |
+| ListObjects | T+90 | Absent   | Absent  |
+
+**Reading:** The expiration timestamp exists only inside the tuple. The caller supplies `current_time`. The engine performs the evaluation. The adversarial suite validates the authorization model itself rather than merely validating application integration.
+
+**Caveats:** Results characterize the OpenFGA in-memory datastore. Postgres-backed behavior has not been evaluated and is not claimed to be equivalent.
+
+### Exhibit C: Snapshot Semantics Are Preserved
+
+**Claim under test:** When a supervision delegation is valid at the time a trade is proposed, the supervisor's authorization against that trade is preserved even after the delegation expires.
+
+**Data:** DelegationTradeSupervisionIntegrationTests (T2) exercises the following sequence:
 
 ```
-Allowed
+T=0    Delegation granted.
+T=1    Trade proposed. Supervisor tuple written.
+T=2    Delegation expires.
+T=180  Supervisor queries trade.
+
+Expected: Allowed
+Observed: Allowed    (pass)
 ```
 
-Observed:
+**Reading:** The model captures supervision relationships at trade proposal time. The T2 suite documents this as an explicit, passing specification. Future modifications that alter this invariant produce a failing scenario before deployment.
 
-```
-Allowed
-```
+**Caveats:** This demonstrates one temporal invariant. It is not a proof of complete temporal correctness. The scenario is a regression anchor, not a proof of completeness.
 
-The model therefore implements snapshot semantics rather than continuously recomputing authorization from current delegation state.
+### Exhibit D: Structural Isolation Scales
 
-This property exists as a named adversarial scenario.
+**Claim under test:** The isolation design accommodates incremental scenario addition without modifying existing fixture infrastructure.
 
-Future modifications that alter this invariant produce a failing specification before deployment.
-
-**Caveat**
-
-This demonstrates one temporal invariant.
-
-It is not a proof of complete temporal correctness.
-
----
-
-## Exhibit D: Structural Isolation Scales
-
-The T1 remediation added two new scenarios.
+**Data:** The T1 remediation added two new scenarios.
 
 | Stage  | Tests | Failures | Fixture Changes |
 | ------ | ----- | -------- | --------------- |
 | Before | 323   | 0        | N/A             |
 | After  | 325   | 0        | 0               |
 
-No changes were required to:
+No changes were required to `FgaTestBase`, `OpenFgaFixture`, store lifecycle management, or container management.
 
-* FgaTestBase
-* OpenFgaFixture
-* Store lifecycle management
-* Container management
+**Reading:** Per-class isolation scales by local extension. Adding a scenario extends the local proof set. Adding a new class creates a new isolated store. Neither operation modifies shared infrastructure.
 
-Per-class isolation scales by local extension.
+**Caveats:** This evidence covers one remediation cycle adding two tests. It does not characterize the design at significantly higher test counts or under concurrent development by multiple engineers.
 
-Adding a scenario extends the local proof set.
+## QED
 
-Adding a new class creates a new isolated store.
+The T1 result was not that a production bug was found. The T1 result was that a real authorization engine and a mocked authorization engine are not evidentially equivalent once conditional relationships enter the model. One omitted context parameter left `not_expired` unevaluable at the `ListObjects` boundary. The adversarial suite identified the gap before any production feature depended upon it. A mocked suite with identical application-layer coverage would have achieved identical coverage metrics while observing no difference. That is the distinction between testing calls and testing decisions.
 
-Neither operation modifies shared infrastructure.
+The fixture architecture survived the remediation unchanged. Two additional scenarios extended the proof set without modifying shared infrastructure. The model grew locally.
 
-The property is observable directly from the fixture architecture.
+The limitations remain. 325 tests across 25 named authorization properties do not constitute formal verification. Postgres-backed behavior has not been characterized. Unnamed scenarios may still exist in which a property fails.
 
----
-
-# QED
-
-The T1 result was not that a production bug was found.
-
-The T1 result was that a real authorization engine and a mocked authorization engine are not evidentially equivalent once conditional relationships enter the model.
-
-One omitted context parameter left `not_expired` unevaluable at the `ListObjects` boundary.
-
-The adversarial suite identified the gap before any production feature depended upon it.
-
-A mocked suite with identical application-layer coverage would have achieved identical coverage metrics while observing no difference.
-
-That is the distinction between testing calls and testing decisions.
-
-The fixture architecture survived the remediation unchanged.
-
-Two additional scenarios extended the proof set without modifying shared infrastructure.
-
-The model grew locally.
-
-The limitations remain.
-
-Three hundred twenty-five tests across twenty-five named authorization properties do not constitute formal verification.
-
-Postgres-backed behavior has not been characterized.
-
-Unnamed scenarios may still exist.
-
-The evidence supports a partial refutation of H₀.
-
-For conditional relationships, a mocked authorization engine is not evidentially equivalent to the production engine.
-
-The T1 result demonstrates the practical consequence.
+The evidence supports a partial refutation of H₀. For conditional relationships, a mocked authorization engine is not evidentially equivalent to the production engine. The T1 result demonstrates the practical consequence. This post contributes a replicable instance of the adversarial pattern in .NET 10, with one documented gap found and remediated before production expression, and a fixture design that accommodated the remediation without structural change.
 
 ∎
 
 ---
 
-# Appendix
+## Appendix
 
-## Terms
+### Terms
 
-### Relationship-Based Access Control (ReBAC)
+**Relationship-Based Access Control (ReBAC).** An authorization paradigm in which access decisions derive from traversable paths in a relationship graph rather than static role assignments. Whether a user can act on a resource depends on whether a named relationship chain connects them at query time. This matters to this post because the dynamic, graph-structured nature of ReBAC makes test coverage an insufficient standard of evidence. The space of reachable authorization states cannot be fully described by a permission table, so it cannot be fully validated by a test suite that only validates the call to the table.
 
-An authorization paradigm in which access decisions derive from traversable paths in a relationship graph rather than static role assignments.
+**OpenFGA.** An implementation of the Google Zanzibar authorization model. Authorization state consists of tuples. Authorization decisions are computed by traversing those tuples against a DSL-defined model, applying conditions at query time. This matters to this post because OpenFGA evaluates conditions using caller-supplied context. A test that does not supply that context cannot observe the conditional evaluation, and a mock that does not implement the condition cannot detect when the condition would produce an unexpected result.
 
----
+**Tuple.** The atomic unit of authorization state: (user, relation, object). Conditional tuples extend that assertion with evaluation rules executed by the engine at query time. This matters to this post because deterministic test setup requires knowing exactly which tuples the production pipeline writes, and the event-driven architecture is what makes those writes auditable.
 
-### OpenFGA
+**`not_expired` condition.** A conditional relationship that evaluates to true when the caller-supplied `current_time` is before an expiration timestamp embedded in the tuple at write time. The comparison occurs inside the engine. The application supplies context. It does not perform the evaluation. This matters to this post because the T1 finding was precisely that `current_time` was absent from `ListObjects` requests, leaving this condition unevaluable at that boundary.
 
-An implementation of the Google Zanzibar authorization model.
+**Check vs. ListObjects.** `Check` asks whether user U has relation R on a specific object O. `ListObjects` asks for every object of type T for which user U has relation R. Both require identical evaluation context for conditional relationships. This matters to this post because the production omission of `current_time` affected `ListObjects` but not `Check`, and the adversarial suite exercises both boundaries.
 
-Authorization state consists of tuples.
+**Testcontainers.** A testing library that provisions Docker containers automatically during test execution. The adversarial suite uses Testcontainers to create a reproducible, production-equivalent OpenFGA environment for every test run without a shared environment dependency. This matters to this post because it is the mechanism that makes real-engine testing portable: any developer with Docker Desktop and the .NET 10 SDK can reproduce the results by running `dotnet test`.
 
-Authorization decisions are computed by traversing those tuples against a DSL-defined model.
+### Supplemental Diagrams
 
----
-
-### Tuple
-
-The atomic unit of authorization state.
+#### Diagram 1: Test Pyramid Placement
 
 ```
-(user, relation, object)
+             ^
+             |   Full Integration Tests
+             |   (HTTP layer, database, full application stack)
+             |   -------------------------------------------------------
+             |   Adversarial Authorization Suite         <- this suite
+             |   (real FGA engine, no application layer,
+             |    per-class isolated stores, named scenarios)
+             |   -------------------------------------------------------
+             |   Infrastructure Unit Tests
+             v   (services, handlers, repositories, application logic)
+          more tests
 ```
 
-Conditional tuples extend that assertion with evaluation rules executed by the engine.
+The adversarial suite sits above unit tests and below full integration tests. It exercises the authorization model in isolation from the application stack.
 
----
-
-### `not_expired`
-
-A conditional relationship evaluated by OpenFGA using:
+#### Diagram 2: Per-Class Store Isolation Lifecycle
 
 ```
-current_time < expiration
+Test Run Start
+  |
+  v
+OpenFgaFixture.InitializeAsync()
+  Start openfga/openfga:v1.15.1 container
+  Instantiate OpenFgaClient
+
+  [container shared across all test classes]
+
+  For each test class:
+
+    FgaTestBase.InitializeAsync()
+      CreateStoreAsync(name: typeof(TestClass).Name)
+      WriteAuthorizationModelAsync(M) into new store
+      StoreId scoped to this class
+
+      [Scenario 1]  WriteTuples -> Check / ListObjects -> Assert
+      [Scenario 2]  WriteTuples -> Check / ListObjects -> Assert
+      [Scenario N]  WriteTuples -> Check / ListObjects -> Assert
+
+    FgaTestBase.DisposeAsync()
+      DeleteStoreAsync(StoreId)
+
+  [all classes complete]
+
+OpenFgaFixture.DisposeAsync()
+  Stop and remove container
 ```
 
-The comparison occurs inside the engine.
+#### Diagram 3: Scenario Map
 
-The application supplies context.
+| Scenario Class | Authorization Property | Key Assertion | API |
+|---|---|---|---|
+| DelegationExpiryTests (T1) | `not_expired` evaluated at both boundaries when `current_time` supplied | Denied after expiry, allowed before | Check + ListObjects |
+| DelegationTradeSupervisionIntegrationTests (T2) | Snapshot supervisor semantics preserved at delegation time | Allowed at T+180 given valid delegation at T+1 | Check |
+| OwnershipTests | Card owner has full access; non-owner has none | Allowed for owner, Denied for non-owner | Check |
+| CollectionVisibilityTests | Public collections readable; private collections isolated | Returned for public, not listed for private | ListObjects |
+| TradeProposalTests | Proposer and recipient have access; uninvolved parties do not | Allowed for parties, Denied for third parties | Check |
+| DealerPrivilegeTests | Dealer-exclusive relations inaccessible to collectors | Denied for collector regardless of ownership | Check |
 
-It does not perform the evaluation itself.
+#### Diagram 4: Event-to-Tuple Pipeline
 
----
+```
+Domain Event raised
+(e.g. DelegationGrantedEvent, TradeProposedEvent)
+        |
+        v
+TupleWriterDispatcher
+Routes event by type to registered handler
+        |
+        v
+ITupleWriterHandler implementation
+(e.g. DelegationTupleWriter, TradeTupleWriter)
+Constructs TupleKey[] from event data
+        |
+        v
+OpenFgaAuthorizationService.WriteTuplesAsync()
+        |
+        v
+OpenFGA Tuple Store
+Authorization state updated
+```
 
-### Check vs ListObjects
+Because all tuple writes flow through named handlers, the authorization graph is derivable by reading the writers. A writer that produces incorrect tuples causes an adversarial scenario to fail. The failure names the broken property.
 
-`Check`
+#### Diagram 5: DelegationExpiryTests Sequence (T1)
 
-> Does user U have relation R on object O?
+```
+Test class init:
+  Store created. Authorization model M loaded.
 
-`ListObjects`
+Setup:
+  WriteTuple(
+    user:guardian-1 -> delegate -> trade:t100,
+    condition: not_expired { expiration: T+60min }
+  )
 
-> Return every object of type T for which user U has relation R.
+Scenario: Guardian_CanSupervise_BeforeDelegationExpiry
+  CheckAsync(guardian-1, can_supervise, trade:t100,
+             ctx: { current_time: T+30min })
+  -> Allowed  (expected: Allowed)  PASS
 
-Both require identical evaluation context for conditional relationships.
+Scenario: Guardian_CannotSupervise_AfterDelegationExpiry
+  CheckAsync(guardian-1, can_supervise, trade:t100,
+             ctx: { current_time: T+90min })
+  -> Denied   (expected: Denied)   PASS
 
----
+Scenario: Guardian_CanSee_ActiveDelegation_Via_ListObjects
+  ListObjectsAsync(guardian-1, can_supervise, trade,
+                  ctx: { current_time: T+30min })
+  -> [trade:t100]   (expected: [trade:t100])   PASS
 
-### Testcontainers
+Scenario: Guardian_CannotSee_ExpiredDelegation_Via_ListObjects
+  ListObjectsAsync(guardian-1, can_supervise, trade,
+                  ctx: { current_time: T+90min })
+  -> []   (expected: [])   PASS
 
-A testing library that provisions Docker containers automatically during test execution.
+Key: current_time is stored in the tuple as expiration.
+     The caller supplies current_time in context.
+     The engine evaluates not_expired.
+     The application performs no time comparison.
+```
 
-The adversarial suite uses Testcontainers to create a reproducible production-equivalent OpenFGA environment for every test run.
+### Reproducibility
+
+Dependencies: Docker Desktop and the .NET 10 SDK. OpenFGA v1.15.1 is pulled by Testcontainers at test start.
+
+```bash
+git clone https://github.com/darkhorse286/cardtrader
+cd cardtrader
+dotnet test --logger "console;verbosity=normal"
+```
+
+Expected output:
+
+```
+Test Run Successful.
+Total tests: 325
+     Passed: 325
+      Failed: 0
+```
+
+Run only the adversarial authorization suite:
+
+```bash
+dotnet test --filter "Category=Authorization" --logger "console;verbosity=normal"
+```
+
+The authorization model is at `authz/model.fga`. It is version-controlled and diffable. Changes are visible in git history alongside the tests that document their behavioral implications.
