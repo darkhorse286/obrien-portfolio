@@ -39,18 +39,18 @@ Too many projects start with the UI, or with "let's just get something working" 
 This is not perfectionism, and it does not mean the customer waits until the end to see anything. It is rework reduction. Every hour spent in upfront design saves three to five hours of refactoring later. Every authorization rule at the API layer is one less security vulnerability in the UI. Every DTO designed for its specific purpose is one less breaking change when requirements evolve.
 
 **Core principles:**
-- **Solve the customer need.** Without a solved customer need, everything else is academic
-- **Security as architecture, not afterthought.** Authentication, authorization, and data protection are design decisions, not post-deployment fixes or penetration test remediation items
-- **Backend-first development.** Business logic lives in services, not controllers or UI components
-- **Contract-first APIs.** OpenAPI specifications written before implementation, defining clear boundaries between layers
-- **Separation of concerns.** DTOs for transport, entities for persistence, view models for presentation, each with distinct responsibilities
-- **Test coverage where it matters.** Business logic and authorization rules, not getters and setters
+- **Solve the customer need** — without a solved customer need, everything else is academic
+- **Security as architecture, not afterthought** — authentication, authorization, and data protection are design decisions, not post-deployment fixes or penetration test remediation items
+- **Backend-first development** — business logic lives in services, not controllers or UI components
+- **Contract-first APIs** — OpenAPI specifications written before implementation, defining clear boundaries between layers
+- **Separation of concerns** — DTOs for transport, entities for persistence, view models for presentation, each with distinct responsibilities
+- **Test coverage where it matters** — business logic and authorization rules, not getters and setters
 
 ---
 
 ## Current Work
 
-I continue to work in application security and software architecture, building systems that balance security requirements with engineering velocity at a Fortune 500 company. But I am an entrepreneur at heart, and this site serves as my workshop for exploring design patterns, demonstrating architectural thinking, and building side projects that solve real problems.
+I continue to work in application security and software architecture, building systems that balance security requirements with engineering velocity. But I am an entrepreneur at heart, and this site serves as my workshop for exploring design patterns, demonstrating architectural thinking, and building side projects that solve real problems.
 
 **The best way to stay sharp is to build.** Not proof-of-concepts or toy applications, but complete systems with real complexity: multi-tenancy, authorization, data modeling, API design. The work on this site represents production-quality engineering applied to problems I find worth solving.
 
@@ -64,6 +64,8 @@ Whether it is a lacrosse management platform built to help manage an 8U Girls la
 - Systematic approaches to reducing technical debt
 
 This site is not about showcasing what I have done professionally. It is about demonstrating how I think through problems, make architectural decisions, and build systems that can be maintained and extended over time.
+
+Engineering articles here follow a proof-based structure: proposition, constraints, evidence, and what the evidence actually says. The format is an homage to the PoC||GTFO articles that helped shape my early career. If the benchmark comes back negative, the post reports it. A falsified result is more publishable than a confirmed one.
 
 **Building things properly takes time. This is where I take that time.**
 
