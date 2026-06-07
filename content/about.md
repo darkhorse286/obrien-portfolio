@@ -69,6 +69,6 @@ Engineering articles here follow a proof-based structure: proposition, constrain
 
 **Building things properly takes time. This is where I take that time.**
 
-I am always open to conversations about challenging problems, innovative projects, or opportunities to collaborate on something worthwhile. Connect with me on [LinkedIn](https://www.linkedin.com/in/liam-o-brien-a6438043/).
+I am always open to conversations about challenging problems, innovative projects, or opportunities to collaborate on something worthwhile. Connect with me on [LinkedIn](https://www.linkedin.com/in/liamobrienmn/).
 
 *Note: I am not interested in vendor solicitations, staffing agency cold outreach, or sales pitches. If you are reaching out about actual engineering work or collaboration, I would love to hear from you.*

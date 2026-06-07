@@ -69,7 +69,7 @@ export default function RootLayout({
               jobTitle: 'Senior Solutions Architect for Security',
               url: 'https://www.obrienandson.com',
               sameAs: [
-                'https://www.linkedin.com/in/liam-o-brien-a6438043/',
+                'https://www.linkedin.com/in/liamobrienmn/',
               ],
               address: {
                 '@type': 'PostalAddress',

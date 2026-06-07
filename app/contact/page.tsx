@@ -29,7 +29,7 @@ export default function Contact() {
               Connect professionally and see my full work history.
             </p>
             <a 
-              href="https://www.linkedin.com/in/liam-o-brien-a6438043/" 
+              href="https://www.linkedin.com/in/liamobrienmn/" 
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-semibold text-lg inline-flex items-center gap-2"
