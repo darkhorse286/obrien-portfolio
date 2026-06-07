@@ -15,6 +15,8 @@ This claim appears unnecessarily expensive at first inspection. OpenFGA already 
 
 Why start Docker containers? Why provision stores? Why manage authorization models? Why pay the runtime cost of a real engine if the interface contract is already known? Because the interface contract is not the system. The authorization decision is the system. Once conditional relationships enter the model, the caller no longer determines the result. The caller merely supplies state. The engine evaluates it.
 
+A call that omits required evaluation context still completes. The response shape is valid. The decision is wrong. The interface contract provides no mechanism for detecting this. Only comparing the actual decision against the model's intended behavior does.
+
 The engineering question is therefore not:
 
 > Can my service call OpenFGA correctly?
@@ -61,7 +63,7 @@ Three approaches were evaluated.
 
 **Mocked Authorization Engine.** The advantages are speed, no infrastructure dependency, and full application-layer coverage. The fatal weakness is that the mock evaluates nothing. Conditional relationships become hardcoded expectations. A missing context parameter, a malformed condition, or an unexpected engine evaluation are all unobservable. The evidence concerns calls, not decisions.
 
-**Real Engine via Testcontainers.** Chosen. A pinned production-equivalent image (`openfga/openfga:v1.15.1`) starts automatically before test execution. Each run begins from an empty state. Versioning is explicit. Infrastructure is reproducible. Startup cost is bounded. The evidence concerns the behavior of the authorization engine itself.
+**Real Engine via Testcontainers.** Chosen. A pinned production-equivalent image (`openfga/openfga:v1.15.1`) starts automatically before test execution. Each run begins from an empty state. Versioning is explicit. Infrastructure is reproducible. The relevant cost variables are container pull time, container initialization, authorization model load time per store, and per-class store creation overhead. None of these have been benchmarked in this project. Container pull time is mitigatable by image caching in CI. The remaining variables scale with model complexity and test class count. Benchmarking is deferred to future work and belongs in any evaluation of this pattern for time-sensitive pipelines.
 
 ### Decision 2: Store Isolation
 
@@ -88,6 +90,8 @@ Coverage targets and named adversarial scenarios were evaluated.
 **Coverage-Oriented Testing.** Coverage measures execution, not correctness. A mocked authorization call and a real authorization call produce identical coverage numbers. The metrics are indistinguishable. The evidence is not.
 
 **Named Adversarial Scenarios.** Chosen. Each test represents a single authorization property. The scenario name is the claim. The assertion is the evidence. A failing scenario names the broken property directly. The suite becomes a collection of proof obligations rather than a collection of executed lines.
+
+The six scenario classes in this project are derived from `authz/model.fga`. Reading the model top-to-bottom produces the scenario skeleton: each distinct relation type is a scenario class candidate, and each conditional relationship requires boundary scenarios bracketing the condition threshold. The T1 class derives from the `not_expired` condition; the T2 class derives from the supervision relation's snapshot semantics; the remaining four classes correspond to ownership, collection visibility, trade proposal access, and dealer privilege relations. A new relation type added to the model is a new scenario class candidate. No fixture infrastructure changes are required to accommodate it. The method identifies what to test. Domain knowledge determines the setup that makes each scenario adversarial.
 
 ## Evidence
 
@@ -127,7 +131,7 @@ var response = await _client.ListObjectsAsync(
 
 The omission was invisible to application-layer coverage. Both implementations exercised identical code paths. Only the real engine attempted to evaluate the condition.
 
-**Reading:** The adversarial suite identified an authorization integration defect before any production feature depended upon the affected path. A mocked authorization engine configured with expected return values would have reported complete success.
+**Reading:** The failure mode is a silent downgrade. When the engine cannot evaluate a condition because required context is absent, it does not return an error. It returns the tuple as if the condition were satisfied. A conditional authorization boundary becomes unconditional. The observable defect is an incorrect decision: expired delegations returned as active. The root cause is a call-level omission. The adversarial suite detected this because it evaluated the actual decision against the model's intended behavior. T_mock cannot detect it because T_mock does not evaluate conditions regardless of what context is or is not supplied. The defect class is not specific to `not_expired`. Any conditional relationship in the model is vulnerable to the same silent downgrade if the caller omits required context.
 
 **Caveats:** The claim that this gap would have produced a production incident is not supported. The delegation path to roster visibility was real at the model level and latent at the application layer. The suite found a latent gap, not an active defect.
 
@@ -200,7 +204,7 @@ The T1 result was not that a production bug was found. The T1 result was that a 
 
 The fixture architecture survived the remediation unchanged. Two additional scenarios extended the proof set without modifying shared infrastructure. The model grew locally.
 
-The limitations remain. 325 tests across 25 named authorization properties do not constitute formal verification. Postgres-backed behavior has not been characterized. Unnamed scenarios may still exist in which a property fails.
+The limitations remain. 325 tests across 25 named authorization properties do not constitute formal verification. Postgres-backed behavior has not been characterized. Suite execution time has not been benchmarked and CI pipeline integration has not been evaluated. Unnamed scenarios may still exist in which a property fails.
 
 The evidence supports a partial refutation of H₀. For conditional relationships, a mocked authorization engine is not evidentially equivalent to the production engine. The T1 result demonstrates the practical consequence. This post contributes a replicable instance of the adversarial pattern in .NET 10, with one documented gap found and remediated before production expression, and a fixture design that accommodated the remediation without structural change.
 
