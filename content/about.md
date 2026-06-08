@@ -1,62 +1,74 @@
 ---
 title: "About"
 ---
+
 ## The O'Brien & Son Story
-My mother founded O'Brien & Son, Inc., an exterior remodeling company, at the birth of her first son. For nearly four decades, O'Brien & Son specialized in windows, siding, shutters, gutters, soffit, and fascia, building a reputation for quality craftsmanship and attention to detail.
 
-When she closed the business in 2025, I inherited more than just a domain name. I inherited a legacy of building things properly and excellent customer service. Rather than let obrienandson.com fade into internet history, I saw an opportunity to pivot from physical construction to digital transformations.
+My mother founded O'Brien & Son, Inc. when her first son was born. For nearly four decades, the company built a reputation across the Chicagoland area for windows, siding, gutters, soffit, and fascia. Quality craftsmanship. No shortcuts. Stand behind your work.
 
-**The name remains. The commitment to quality craftsmanship remains. The focus has simply shifted from exterior remodeling to software architecture.**
+When she closed the business in 2025, I bought it.
 
-This site is my workshop. A place where I can demonstrate systematic engineering, sound architectural principles, security-conscious designs, and experiments with new and emerging technologies. Like O'Brien & Son has done in the past, what I build here is meant to last, to be maintained, and to withstand scrutiny.
+Not the equipment. Not the client list. The name, and what it had spent forty years earning. Because O'Brien & Son had built what most businesses never achieve: a reputation where your work speaks before you do, and a standard you can actually be held to. Letting that disappear into internet history was not something I was willing to accept.
+
+The tools are different now. The materials are different. The clients are different. The standard is not.
+
+Where O'Brien & Son built from the outside in, I build from the inside out. Software architecture, security engineering, and backend systems instead of windows and siding. The commitment is the same: design it right, build it to last, and be the person who answers for it when something goes wrong.
+
+This site is my workshop.
+
+---
 
 ## My Background
-I'm a software architect and security leader with a track record of building production systems that handle complexity without collapsing under their own weight. My experience bridges the gap between software development and security engineering, bringing the best practices into full-stack system design for the continuous delivery of value to my customers.
 
-Most recently, I serve as a Senior Solutions Architect for Security at a Fortune 500 Agriculture and Energy Cooperative. Part of my responsibilities are leading security architecture reviews, establishing secure development standards, working with and across engineering teams to build systems that balance security requirements, business capabilities, and development velocity. Prior to that, I held roles focused on web development, DevSecOps, and automation.
+I am a software architect and security leader with a track record of building production systems that handle complexity without collapsing under their own weight. My work sits at the intersection of software development and security engineering, applied to full-stack system design for the continuous delivery of value.
 
-**What drives my work:** I believe that security and quality are not features that you bolt on at the end. They are architectural decisions you make at the beginning. The best systems are designed with their constraints in mind, not retrofitted to accommodate, or bandage, them later.
+I currently serve as Senior Solutions Architect for Security at a Fortune 500 Agriculture and Energy Cooperative, where I lead security architecture reviews, establish secure development standards, and work with engineering teams to build systems that balance security requirements, business capabilities, and development velocity. Prior roles focused on web development, DevSecOps, and automation.
 
-I've spent my career in the messy intersection between "make it ship" and "make it secure," and I've learned that the right architecture can enable both possibilities to co-exist. Backend-first development, clear API contracts, separation of concerns, and systematic thinking about authorization aren't just ideals; they're how you avoid architectural debt that cripples projects years down the line.
+**What drives my work:** Security and quality are not features you bolt on at the end. They are architectural decisions you make at the beginning. The best systems are designed with their constraints in mind, not retrofitted to accommodate them later.
+
+I have spent my career in the messy intersection between "make it ship" and "make it secure," and I have learned that the right architecture enables both. Backend-first development, clear API contracts, separation of concerns, and systematic thinking about authorization are not ideals. They are how you prevent the architectural debt that cripples projects years after the initial build.
+
+---
 
 ## Technical Approach
 
 **I build from the domain model outward.**
 
-Too many projects start with the UI or with vague "let's just get something working" prototypes that calcify into production systems. My approach is different. I start with listening to understand the problem statement deeply. Once the problem domain is understood, model the entities and relationships correctly, implement business logic at the appropriate layer, and then build the presentation layer as a mechanical exercise in consuming a well-designed API.
+Too many projects start with the UI, or with "let's just get something working" prototypes that calcify into production systems. My approach is different. I start by listening to understand the problem deeply. Once the domain is understood, I model the entities and relationships correctly, implement business logic at the appropriate layer, and build the presentation layer as a mechanical exercise in consuming a well-designed API.
 
-This isn't about perfectionism, and by no means does it mean that the customer shouldn't see something until the end of the process; this is about reducing rework. Every hour spent in upfront design saves three to five hours of refactoring later. Every authorization rule at the API layer is one less security vulnerability in the UI. Every data transfer object, DTO, designed for its specific purpose is one less breaking change when requirements evolve.
+This is not perfectionism, and it does not mean the customer waits until the end to see anything. It is rework reduction. Every hour spent in upfront design saves three to five hours of refactoring later. Every authorization rule at the API layer is one less security vulnerability in the UI. Every DTO designed for its specific purpose is one less breaking change when requirements evolve.
 
-**Core principles I work from**
-- **Solve the customer need** - without solving a customer need, everything is purely academic
-- **Security as architecture, not afterthought** - Authentication, authorization, and data protection decisions are made during design, not post-deployment or from penetration test results
-- **Backend-first development** - Business logic lives in services, not controllers or UI components
-- **Contract-first APIs** - OpenAPI specifications written before implementation, defining clear boundaries between layers
-- **Separation of concerns** - DTOs for transport, entities for persistence, view models for presentation—each with distinct responsibilities
-- **Test coverage where it matters** - Focus on business logic and authorization rules, not getters and setters
+**Core principles:**
+- **Solve the customer need** — without a solved customer need, everything else is academic
+- **Security as architecture, not afterthought** — authentication, authorization, and data protection are design decisions, not post-deployment fixes or penetration test remediation items
+- **Backend-first development** — business logic lives in services, not controllers or UI components
+- **Contract-first APIs** — OpenAPI specifications written before implementation, defining clear boundaries between layers
+- **Separation of concerns** — DTOs for transport, entities for persistence, view models for presentation, each with distinct responsibilities
+- **Test coverage where it matters** — business logic and authorization rules, not getters and setters
+
+---
 
 ## Current Work
 
-I continue to work in application security and software architecture, focusing on building systems that balance security requirements with engineering velocity. But I'm an entrepreneur at heart, and this site serves as my workshop for exploring design patterns, demonstrating architectural thinking, and building side projects that solve real problems.
+I continue to work in application security and software architecture, building systems that balance security requirements with engineering velocity. But I am an entrepreneur at heart, and this site serves as my workshop for exploring design patterns, demonstrating architectural thinking, and building side projects that solve real problems.
 
-**What drives this work:** The best way to stay sharp is to build. Not proof-of-concepts or toy applications, but complete systems with real complexity: multi-tenancy, authorization, data modeling, API design. The demonstrations on this site represent production-quality engineering applied to problems I find interesting.
+**The best way to stay sharp is to build.** Not proof-of-concepts or toy applications, but complete systems with real complexity: multi-tenancy, authorization, data modeling, API design. The work on this site represents production-quality engineering applied to problems I find worth solving.
 
-Whether it's a lacrosse management platform I built to help manage an 8U Girls lacrosse team, a security tool designed to address a gap I've identified, or an architectural pattern I want to prove out, I'm always working on something. That entrepreneurial mindset extends beyond side projects; I am always interested in conversations about interesting problems, innovative approaches, or opportunities to build something meaningful.
+Whether it is a lacrosse management platform built to help manage an 8U Girls lacrosse team, a security tool designed to address a gap I identified, or an architectural pattern I want to prove out, I am always working on something. That entrepreneurial mindset extends beyond side projects. I am always interested in conversations about interesting problems, innovative approaches, or opportunities to build something meaningful.
 
 **Areas of focus:**
-
 - Backend-first architecture and microservice API design
 - Security architecture across application, API, and infrastructure layers
 - Domain modeling for complex business workflows
 - Authorization patterns for multi-tenant systems
 - Systematic approaches to reducing technical debt
 
-This site is not about showcasing what I've done professionally. It's about demonstrating how I think through problems, make architectural decisions, and build systems that can be maintained and extended over time.
+This site is not about showcasing what I have done professionally. It is about demonstrating how I think through problems, make architectural decisions, and build systems that can be maintained and extended over time.
 
-
+Engineering articles here follow a proof-based structure: proposition, constraints, evidence, and what the evidence actually says. The format is an homage to the PoC||GTFO articles that helped shape my early career. If the benchmark comes back negative, the post reports it. A falsified result is more publishable than a confirmed one.
 
 **Building things properly takes time. This is where I take that time.**
 
-I'm always open to conversations about challenging problems, innovative projects, or opportunities to collaborate on something worthwhile. Connect with me on [LinkedIn](https://www.linkedin.com/in/liam-o-brien-a6438043/).
+I am always open to conversations about challenging problems, innovative projects, or opportunities to collaborate on something worthwhile. Connect with me on [LinkedIn](https://www.linkedin.com/in/liamobrienmn/).
 
-*Note: I'm not interested in vendor solicitations, staffing agency cold outreach, or sales pitches. If you're reaching out about actual engineering work or collaboration, I'd love to hear from you.*
+*Note: I am not interested in vendor solicitations, staffing agency cold outreach, or sales pitches. If you are reaching out about actual engineering work or collaboration, I would love to hear from you.*
