@@ -18,7 +18,7 @@ export default async function Home() {
         <div className="max-w-5xl mx-auto px-6">
           <div className="mb-6">
             <span className="inline-block text-sm font-semibold text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/30 px-4 py-2 rounded-full mb-4">
-              EST. 1986 — 40 YEARS OF BUILDING THINGS PROPERLY
+              EST. 1986. 40 YEARS OF BUILDING WITH A COMMITMENT TO QUALITY AND CRAFTSMANSHIP.
             </span>
           </div>
 
