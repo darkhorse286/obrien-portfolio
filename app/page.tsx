@@ -27,8 +27,8 @@ export default async function Home() {
           </h1>
           
           <p className="text-2xl md:text-3xl text-gray-700 dark:text-gray-300 mb-8 font-light leading-relaxed max-w-3xl">
-            Where quality craftsmanship meets software architecture. A workshop for building 
-            production systems with the same attention to detail that built our reputation 
+            Craftsmanship doesn't change. The materials do. A workshop for building
+            production systems to the same standard that earned forty years of trust
             in exterior remodeling.
           </p>
 
@@ -36,9 +36,8 @@ export default async function Home() {
             <p className="text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
               In 1986, my mother founded O'Brien & Son to build quality into every project.
               For four decades, that meant windows, siding, gutters, shutters, and lasting craftsmanship. Today,
-              the name continues, but the materials have changed. <strong className="text-gray-900 dark:text-gray-100">This
-              workshop is where backend architecture, security patterns, and production systems are
-              designed, built, and refined.</strong>
+              I carry the name forward with different materials. <strong className="text-gray-900 dark:text-gray-100">This
+              is where I design, build, and refine backend architecture, security patterns, and production systems.</strong>
             </p>
           </div>
 
@@ -178,7 +177,7 @@ export default async function Home() {
             <div>
               <p className="font-semibold text-amber-900 dark:text-amber-300 mb-1">Active Workshop</p>
               <p className="text-amber-800 dark:text-amber-400">
-                This site is itself under active development. New demonstrations, refinements to existing 
+                This site is a hard hat area. New demonstrations, refinements to existing 
                 work, and additional architectural examples are added as they reach production quality.
               </p>
             </div>
@@ -193,7 +192,7 @@ export default async function Home() {
             The Same Standards. Different Materials.
           </h2>
           <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-            O'Brien & Son built its reputation on quality that lasts. That commitment continues—now 
+            O'Brien & Son built its reputation on quality that lasts. That commitment continues, now
             applied to software architecture, security-conscious design, and production systems.
           </p>
           
